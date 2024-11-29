@@ -4,10 +4,10 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+@Component
 public class AudioFileUtils {
 
     public File convertMultipartFileToFile(MultipartFile multipartFile) throws Exception {

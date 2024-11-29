@@ -2,6 +2,7 @@ package L03.CNPM.Music.controllers;
 
 import L03.CNPM.Music.models.Role;
 import L03.CNPM.Music.responses.ResponseObject;
+import L03.CNPM.Music.responses.role.RoleResponse;
 import L03.CNPM.Music.services.roles.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,13 +19,29 @@ import java.util.List;
 public class RoleController {
     private final RoleService roleService;
 
+    // ENDPOINT: {{API_PREFIX}}/roles [GET]
+    // GET ALL ROLES IN SYSTEM, USE BEFORE LOGIN
+    // HEADERS: NO AUTHENTICATION
+    // QUERY: NO QUERY
+    /* RESPONSE: 
+     * {
+     *  "message": "Get roles successfully",    
+     *  "status": "200 OK",
+     *  "data": [
+     *      {
+     *          "id": 1,
+     *          "name": "ADMIN"
+     *      },
+     *  ]
+     * }
+     */
     @GetMapping("")
     public ResponseEntity<ResponseObject> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();
         return ResponseEntity.ok().body(ResponseObject.builder()
                 .message("Get roles successfully")
                 .status(HttpStatus.OK)
-                .data(roles)
+                .data(roles.stream().map(RoleResponse::fromRole).toList())
                 .build());
     }
 }

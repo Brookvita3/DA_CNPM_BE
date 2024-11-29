@@ -3,8 +3,6 @@ package L03.CNPM.Music.models;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "tokens")
 @Getter

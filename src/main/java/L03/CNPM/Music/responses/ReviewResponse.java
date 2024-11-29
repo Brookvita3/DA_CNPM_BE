@@ -1,4 +1,5 @@
-package L03.CNPM.Music.responses.users;
+package L03.CNPM.Music.responses;
+
 import lombok.*;
 
 import java.util.Date;
@@ -17,6 +18,5 @@ public class ReviewResponse {
     private int rating;
 
     private Date reviewDate;
-
 
 }

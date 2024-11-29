@@ -1,5 +1,5 @@
-package L03.CNPM.Music.responses.users;
-import L03.CNPM.Music.models.Song;
+package L03.CNPM.Music.responses;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 

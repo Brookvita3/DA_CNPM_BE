@@ -1,6 +1,5 @@
 package L03.CNPM.Music.services.token;
 
-import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.models.Token;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.TokenRepository;
@@ -24,7 +23,6 @@ public class TokenService implements ITokenService {
     private int expirationRefreshToken;
 
     private final TokenRepository tokenRepository;
-    private final JwtTokenUtils jwtTokenUtil;
 
     @Override
     @Transactional

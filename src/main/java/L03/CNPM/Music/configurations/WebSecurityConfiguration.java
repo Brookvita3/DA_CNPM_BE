@@ -15,6 +15,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -30,29 +31,26 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:3000"));
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(List.of("*"));
+                    corsConfig.setAllowCredentials(true);
+                    return corsConfig;
+                }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> {
                     requests
                             .requestMatchers(
                                     String.format("%s/users/register", apiPrefix),
                                     String.format("%s/users/login", apiPrefix),
-                                    String.format("%s/roles", apiPrefix))
+                                    String.format("%s/roles", apiPrefix),
+                                    String.format("%s/songs", apiPrefix))
                             .permitAll()
                             .anyRequest()
                             .authenticated();
                 });
         return httpSecurity.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:4200"); // Allow requests from Angular app
-        configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, etc.)
-        configuration.addAllowedHeader("*"); // Allow all headers
-        configuration.setAllowCredentials(true); // Allow credentials like cookies
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Apply CORS to all endpoints
-        return source;
     }
 }

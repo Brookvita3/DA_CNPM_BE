@@ -20,25 +20,25 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    private String profileImage;
-
+    @Column(name = "public_image_id")
     private String publicImageId;
 
+    @Column(name = "country")
     private String country;
 
     @Column(name = "date_of_birth")
     private String dateOfBirth;
 
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
     @ManyToOne
@@ -66,15 +66,12 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        if (email != null && !email.isEmpty())
-            return email;
-        else if (username != null && !username.isEmpty())
+        if (username != null && !username.isEmpty())
             return username;
-        return "";
-    }
+        else if (email != null && !email.isEmpty())
+            return email;
 
-    public String GetUserNameInWeb() {
-        return this.username;
+        return "";
     }
 
     public boolean isActive() {

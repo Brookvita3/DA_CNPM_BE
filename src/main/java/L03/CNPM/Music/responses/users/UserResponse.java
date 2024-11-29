@@ -14,29 +14,21 @@ public class UserResponse {
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("email")
-    private String email;
-
-    @JsonProperty("password")
-    private String password;
-
-    @JsonProperty("country")
-    private String country;
-
-    @JsonProperty("date_of_birth")
-    private String dateOfBirth;
+    @JsonProperty("username")
+    private String username;
 
     @JsonProperty("role")
     private Role role;
 
+    @JsonProperty("active")
+    private boolean active;
+
     public static UserResponse fromUser(User user) {
         return UserResponse.builder()
                 .id(user.getId())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .country(user.getCountry())
-                .dateOfBirth(user.getDateOfBirth())
+                .username(user.getUsername())
                 .role(user.getRole())
+                .active(user.isActive())
                 .build();
     }
 }

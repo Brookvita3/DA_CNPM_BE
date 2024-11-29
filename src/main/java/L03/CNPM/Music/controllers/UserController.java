@@ -1,14 +1,15 @@
 package L03.CNPM.Music.controllers;
 
-import L03.CNPM.Music.DTOS.ResetPasswordDTO;
-import L03.CNPM.Music.DTOS.UserDTO;
-import L03.CNPM.Music.DTOS.UserLoginDTO;
+import L03.CNPM.Music.DTOS.user.CreateUserDTO;
+import L03.CNPM.Music.DTOS.user.ResetPasswordDTO;
+import L03.CNPM.Music.DTOS.user.UserLoginDTO;
+import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.components.LocalizationUtils;
-import L03.CNPM.Music.components.SecurityUtils;
 import L03.CNPM.Music.models.Token;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.users.LoginResponse;
+import L03.CNPM.Music.responses.users.UserDetailResponse;
 import L03.CNPM.Music.responses.users.UserListResponse;
 import L03.CNPM.Music.responses.users.UserResponse;
 import L03.CNPM.Music.services.token.ITokenService;
@@ -28,43 +29,65 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
 public class UserController {
         private final LocalizationUtils localizationUtils;
-        private final SecurityUtils securityUtils;
         private final IUserService userService;
         private final ITokenService tokenService;
+        private final ValidationUtils validationUtils;
+        private final JwtTokenUtils jwtTokenUtils;
 
+        // ENDPOINT: {{API_PREFIX}}/users [GET]
+        // GET ALL USERS IN SYSTEM, USE BEFORE LOGIN
+        // HEADERS: AUTHENTICATION: YES (ONLY ADMIN CAN ACCESS)
+        // PARAMS:
+        // keyword: String
+        // page: int
+        // limit: int
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Get user list successfully",
+         * "status": "200 OK",
+         * "data": {
+         * ...
+         * }
+         * }
+         */
         @PreAuthorize("hasRole('ROLE_ADMIN')")
         @GetMapping("")
-        public ResponseEntity<ResponseObject> getAllUser(
+        public ResponseEntity<ResponseObject> Get(
                         @RequestParam(defaultValue = "", required = false) String keyword,
-                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "1") int page,
                         @RequestParam(defaultValue = "10") int limit) {
-                // Tạo Pageable từ thông tin trang và giới hạn
+                if (page < 1) {
+                        page = 1;
+                }
                 PageRequest pageRequest = PageRequest.of(
-                                page, limit,
-                                // Sort.by("createdAt").descending()
+                                page - 1, limit,
                                 Sort.by("id").ascending());
                 Page<UserResponse> userPage = userService.findAll(keyword, pageRequest)
                                 .map(UserResponse::fromUser);
 
-                // Lấy tổng số trang
                 int totalPages = userPage.getTotalPages();
+
+                int currentPage = userPage.getNumber() + 1;
+
+                int itemsPerPage = userPage.getSize();
                 List<UserResponse> userResponses = userPage.getContent();
                 UserListResponse userListResponse = UserListResponse
                                 .builder()
                                 .users(userResponses)
                                 .totalPages(totalPages)
+                                .currentPage(currentPage)
+                                .itemsPerPage(itemsPerPage)
                                 .build();
 
                 return ResponseEntity.ok().body(ResponseObject.builder()
@@ -74,9 +97,24 @@ public class UserController {
                                 .build());
         }
 
+        // ENDPOINT: {{API_PREFIX}}/users/register [POST]
+        // CREATE NEW USER
+        // HEADERS: NO AUTHENTICATION
+        // BODY:
+        // createUserDTO: CreateUserDTO
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Create user successfully",
+         * "status": "200 OK",
+         * "data": {
+         * id, email, username, role, createdAt, updatedAt
+         * }
+         * }
+         */
         @PostMapping("/register")
-        public ResponseEntity<ResponseObject> createUser(
-                        @Valid @RequestBody UserDTO userDTO,
+        public ResponseEntity<ResponseObject> Create(
+                        @Valid @RequestBody CreateUserDTO createUserDTO,
                         BindingResult result) throws Exception {
                 if (result.hasErrors()) {
                         List<String> errorMessages = result.getFieldErrors()
@@ -91,21 +129,28 @@ public class UserController {
                                         .build());
                 }
 
-                if (userDTO.getEmail() == null || userDTO.getEmail().trim().isBlank()) {
+                if (createUserDTO.getEmail() == null || createUserDTO.getEmail().trim().isBlank()) {
                         return ResponseEntity.badRequest().body(ResponseObject.builder()
                                         .status(HttpStatus.BAD_REQUEST)
                                         .data(null)
                                         .message("Email is required")
                                         .build());
                 } else {
-                        // Email not blank
-                        if (!ValidationUtils.isValidEmail(userDTO.getEmail())) {
+                        if (!validationUtils.isValidEmail(createUserDTO.getEmail())) {
                                 throw new Exception("Invalid email format");
                         }
                 }
 
-                if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
-                        // registerResponse.setMessage();
+                if (createUserDTO.getUsername() == null || createUserDTO.getUsername().trim().isBlank()
+                                || createUserDTO.getUsername().trim().contains(" ")) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .data(null)
+                                        .message("Username is required")
+                                        .build());
+                }
+
+                if (!createUserDTO.getPassword().equals(createUserDTO.getRetypePassword())) {
                         return ResponseEntity.badRequest().body(ResponseObject.builder()
                                         .status(HttpStatus.BAD_REQUEST)
                                         .data(null)
@@ -113,129 +158,252 @@ public class UserController {
                                         .build());
                 }
 
-                User newUser = userService.createUser(userDTO);
+                User newUser = userService.Create(createUserDTO);
                 return ResponseEntity.ok(ResponseObject.builder()
                                 .status(HttpStatus.CREATED)
-                                .data(UserResponse.fromUser(newUser))
+                                .data(UserDetailResponse.fromUser(newUser))
                                 .message(MessageKeys.REGISTER_SUCCESSFULLY)
                                 .build());
         }
 
+        // ENDPOINT: {{API_PREFIX}}/users/login [POST]
+        // LOGIN USER
+        // HEADERS: NO AUTHENTICATION
+        // PARAMS:
+        // userLoginDTO: UserLoginDTO
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Login successfully",
+         * "status": "200 OK",
+         * "data": {
+         * token, tokenType
+         * }
+         * }
+         */
         @PostMapping("/login")
-        public ResponseEntity<ResponseObject> loginUser(
+        public ResponseEntity<ResponseObject> Login(
                         @Valid @RequestBody UserLoginDTO userLoginDTO,
                         HttpServletRequest request) throws Exception {
-                // Check login information and generate token
-                String token = userService.loginGetToken(userLoginDTO);
-                String userAgent = request.getHeader("User-Agent");
+                try {
+                        String token = userService.Login(userLoginDTO);
+                        String userAgent = request.getHeader("User-Agent");
 
-                User userDetail = userService.getUserDetailsByExtractingToken(token);
-                Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
+                        User userDetail = userService.GetUserDetailByToken(token);
+                        Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
 
-                LoginResponse loginResponse = LoginResponse.builder()
-                                .message("user.login.login_successfully")
-                                .token(jwtToken.getToken())
-                                .username(userDetail.getUsername())
-                                .roles(userDetail.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                                                .toList()) // method reference
-                                .id(userDetail.getId())
-                                .build();
+                        LoginResponse loginResponse = LoginResponse.builder()
+                                        .token(jwtToken.getToken())
+                                        .tokenType("Bearer")
+                                        .build();
 
-                return ResponseEntity.ok().body(ResponseObject.builder()
-                                .message(loginResponse.getMessage())
-                                .data(loginResponse)
-                                .status(HttpStatus.OK)
-                                .build());
+                        return ResponseEntity.ok().body(ResponseObject.builder()
+                                        .message("Login successfully")
+                                        .data(loginResponse)
+                                        .status(HttpStatus.OK)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .message("Invalid username or password")
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .build());
+                }
         }
 
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
-        @PostMapping(value = "/upload-profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        public ResponseEntity<ResponseObject> uploadProfileImageUser(
-                        @RequestParam("file") MultipartFile file) throws Exception {
-                User loginUser = securityUtils.getLoggedInUser();
-                if (file == null || file.isEmpty()) {
-                        return ResponseEntity.badRequest().body(
-                                        ResponseObject.builder()
-                                                        .message(localizationUtils.getLocalizedMessage(
-                                                                        MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE))
-                                                        .build());
-                }
-
-                if (file.getSize() > 10 * 1024 * 1024) { // 10MB
-                        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                                        .body(ResponseObject.builder()
-                                                        .message(localizationUtils.getLocalizedMessage(
-                                                                        MessageKeys.UPLOAD_IMAGES_FILE_LARGE))
-                                                        .status(HttpStatus.PAYLOAD_TOO_LARGE)
-                                                        .build());
-                }
-
-                // Check file type
-                if (!isImageFile(file)) {
-                        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                                        .body(ResponseObject.builder()
-                                                        .message("Uploaded file must be an image.")
-                                                        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                                                        .build());
-                }
-
-                String newUrl = userService.updateUserImageProfile(loginUser.getId(), file);
-                return ResponseEntity.ok().body(ResponseObject.builder()
-                                .message("Default success message")
-                                .data(newUrl)
-                                .status(HttpStatus.OK)
-                                .build());
-        }
-
+        // ENDPOINT: {{API_PREFIX}}/users/details [GET]
+        // GET USER DETAILS
+        // HEADERS: AUTHENTICATION: YES
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Get user's detail successfully",
+         * "status": "200 OK",
+         * "data": {
+         * id, email, username, role, createdAt, updatedAt
+         * }
+         * }
+         */
         @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST') or hasRole('ROLE_ADMIN')")
         @GetMapping("/details")
-        public ResponseEntity<ResponseObject> getUserDetails(
+        public ResponseEntity<ResponseObject> Detail(
                         @RequestHeader("Authorization") String authorizationHeader) throws Exception {
-                String extractedToken = authorizationHeader.substring(7); // Loại bỏ "Bearer " từ chuỗi token
-                User user = userService.getUserDetailsByExtractingToken(extractedToken);
+                try {
+                        String extractedToken = authorizationHeader.substring(7);
+                        User user = userService.GetUserDetailByToken(extractedToken);
 
-                return ResponseEntity.ok().body(
-                                ResponseObject.builder()
-                                                .message("Get user's detail successfully")
-                                                .data(UserResponse.fromUser(user))
-                                                .status(HttpStatus.OK)
-                                                .build());
-        }
-
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
-        @PutMapping("/reset-password/{userId}")
-        public ResponseEntity<ResponseObject> resetPassword(
-                        @PathVariable Long userId,
-                        @RequestBody ResetPasswordDTO resetPasswordDTO,
-                        @RequestHeader("Authorization") String authorizationHeader) throws Exception {
-                String extractedToken = authorizationHeader.substring(7);
-                User user = userService.getUserDetailsByExtractingToken(extractedToken);
-
-                // Ensure that the user making the request matches the user being updated
-                if (!Objects.equals(user.getId(), userId)) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                        return ResponseEntity.ok().body(ResponseObject.builder()
+                                        .message("Get user's detail successfully")
+                                        .data(UserDetailResponse.fromUser(user))
+                                        .status(HttpStatus.OK)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .message("Unauthorized")
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .build());
                 }
-
-                User updatedUser = userService.resetPassword(userId, resetPasswordDTO);
-                return ResponseEntity.ok().body(
-                                ResponseObject.builder()
-                                                .message("Update user detail successfully")
-                                                .data(UserResponse.fromUser(updatedUser))
-                                                .status(HttpStatus.OK)
-                                                .build());
         }
 
+        // ENDPOINT: {{API_PREFIX}}/users/upload-profile-image [POST]
+        // UPLOAD PROFILE IMAGE
+        // HEADERS: AUTHENTICATION: YES
+        // PARAMS:
+        // file: MultipartFile
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Update profile image successfully",
+         * "status": "200 OK",
+         * "data": {
+         * id, email, username, role, createdAt, updatedAt
+         * }
+         * }
+         */
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        @PostMapping(value = "/upload-profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<ResponseObject> UploadProfileImageUser(
+                        @RequestParam("file") MultipartFile file,
+                        @RequestHeader("Authorization") String authorizationHeader) throws Exception {
+                try {
+                        String extractedToken = authorizationHeader.substring(7);
+                        Long userId = Long.parseLong(jwtTokenUtils.getUserId(extractedToken));
+
+                        if (file == null || file.isEmpty()) {
+                                return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                                .message(localizationUtils.getLocalizedMessage(
+                                                                MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE))
+                                                .build());
+                        }
+
+                        if (file.getSize() > 10 * 1024 * 1024) { // 10MB
+                                return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                                .message(localizationUtils.getLocalizedMessage(
+                                                                MessageKeys.UPLOAD_IMAGES_FILE_LARGE))
+                                                .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                                                .build());
+                        }
+
+                        if (!isImageFile(file)) {
+                                return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                                .message("Uploaded file must be an image.")
+                                                .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                                                .build());
+                        }
+
+                        User updatedUser = userService.UpdateImageProfile(userId, file);
+                        return ResponseEntity.ok().body(ResponseObject.builder()
+                                        .message("Update profile image successfully")
+                                        .data(UserDetailResponse.fromUser(updatedUser))
+                                        .status(HttpStatus.OK)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .message("Unauthorized")
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .build());
+                }
+        }
+
+        // ENDPOINT: {{API_PREFIX}}/users/reset-password [PATCH]
+        // RESET PASSWORD
+        // HEADERS: AUTHENTICATION: YES
+        // PARAMS:
+        // resetPasswordDTO: ResetPasswordDTO
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Update user detail successfully",
+         * "status": "200 OK",
+         * "data": {
+         * id, email, username, role, createdAt, updatedAt
+         * }
+         * }
+         */
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        @PatchMapping("/reset-password")
+        public ResponseEntity<ResponseObject> ResetPassword(
+                        @Valid @RequestBody ResetPasswordDTO resetPasswordDTO,
+                        @RequestHeader("Authorization") String authorizationHeader) throws Exception {
+                try {
+                        String extractedToken = authorizationHeader.substring(7);
+                        Long userId = Long.parseLong(jwtTokenUtils.getUserId(extractedToken));
+
+                        User updatedUser = userService.ResetPassword(userId, resetPasswordDTO);
+                        return ResponseEntity.ok().body(
+                                        ResponseObject.builder()
+                                                        .message("Update user detail successfully")
+                                                        .data(UserDetailResponse.fromUser(updatedUser))
+                                                        .status(HttpStatus.OK)
+                                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .message("Unauthorized")
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .build());
+                }
+        }
+
+        // ENDPOINT: {{API_PREFIX}}/users/update-role/{userId} [PATCH]
+        // UPDATE USER ROLE TO ARTIST
+        // HEADERS: AUTHENTICATION: YES (ONLY ADMIN CAN ACCESS)
+        // PARAMS:
+        // userId: long
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Update user to artist successfully",
+         * "status": "200 OK",
+         * "data": {
+         * id, email, username, role, createdAt, updatedAt
+         * }
+         * }
+         */
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        @PutMapping("/block/{userId}/{active}")
-        public ResponseEntity<ResponseObject> blockOrEnable(
+        @PatchMapping("/update-role/{userId}")
+        public ResponseEntity<ResponseObject> UpdateToArtist(
+                        @Valid @PathVariable long userId) throws Exception {
+                try {
+                        User updatedUser = userService.UpdateToArtist(userId);
+                        return ResponseEntity.ok().body(ResponseObject.builder()
+                                        .message("Update user to artist successfully")
+                                        .status(HttpStatus.OK)
+                                        .data(UserDetailResponse.fromUser(updatedUser))
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .message("Unauthorized")
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .build());
+                }
+        }
+
+        // ENDPOINT: {{API_PREFIX}}/users/block/{userId}/{active} [PATCH]
+        // BLOCK OR ENABLE USER
+        // HEADERS: AUTHENTICATION: YES (ONLY ADMIN CAN ACCESS)
+        // PARAMS:
+        // userId: long
+        // active: int
+        /*
+         * RESPONSE:
+         * {
+         * "message": "Successfully enabled the user.",
+         * "status": "200 OK",
+         * "data": {
+         * id, email, username, role, createdAt, updatedAt
+         * }
+         * }
+         */
+        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        @PatchMapping("/block/{userId}/{active}")
+        public ResponseEntity<ResponseObject> BlockOrEnable(
                         @Valid @PathVariable long userId,
                         @Valid @PathVariable int active) throws Exception {
-                userService.blockOrEnable(userId, active > 0);
+                User updatedUser = userService.BlockOrEnable(userId, active > 0);
                 String message = active > 0 ? "Successfully enabled the user." : "Successfully blocked the user.";
                 return ResponseEntity.ok().body(ResponseObject.builder()
                                 .message(message)
                                 .status(HttpStatus.OK)
-                                .data(null)
+                                .data(UserResponse.fromUser(updatedUser))
                                 .build());
         }
 

@@ -37,7 +37,8 @@ public class JwtTokenUtils {
 
         String subject = getSubject(user);
         claims.put("subject", subject);
-        claims.put("userId", user.getId());
+        claims.put("userId", String.valueOf(user.getId()));
+        claims.put("role", user.getRole().getName());
 
         try {
             String token = Jwts.builder()
@@ -52,8 +53,8 @@ public class JwtTokenUtils {
         }
     }
 
-    private static String getSubject(User user) {
-        return user.getEmail();
+    private String getSubject(User user) {
+        return user.getUsername();
     }
 
     private SecretKey getSignInKey() {
@@ -80,7 +81,16 @@ public class JwtTokenUtils {
     }
 
     public String getUserId(String token) {
-        return extractClaim(token, claims -> claims.get("userId", String.class));
+        return extractClaim(token, claims -> {
+            Object userId = claims.get("userId");
+            if (userId instanceof Integer) {
+                return String.valueOf(userId);
+            }
+            if (userId instanceof String) {
+                return (String) userId;
+            }
+            throw new IllegalArgumentException("Unexpected type for userId claim: " + userId.getClass().getName());
+        });
     }
 
     // check expiration

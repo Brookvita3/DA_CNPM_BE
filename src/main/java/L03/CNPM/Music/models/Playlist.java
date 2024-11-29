@@ -18,6 +18,15 @@ public class Playlist {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "genre_id")
+    private Long genreId;
+
+    @Column(name = "cover_url", length = 255)
+    private String coverUrl;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
@@ -34,7 +43,7 @@ public class Playlist {
     @Column(name = "updated_at")
     private String updatedAt;
 
-    enum Status {
+    public enum Status {
         DRAFT,
         PENDING,
         APPROVED,

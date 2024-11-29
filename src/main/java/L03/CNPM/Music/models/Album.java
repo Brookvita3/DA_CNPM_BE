@@ -1,5 +1,6 @@
 package L03.CNPM.Music.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,7 +32,7 @@ public class Album {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private Status status = Status.DRAFT;
 
     @Column(name = "created_at")
     private String createdAt;
@@ -42,18 +43,15 @@ public class Album {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "album_genre", joinColumns = @JoinColumn(name = "album_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private List<Genre> genres;
+
     public enum Status {
         DRAFT,
         PENDING,
         APPROVED,
         REJECTED
     }
-//
-//    @ManyToMany
-//    @JoinTable(
-//            name = "album_genre",
-//            joinColumns = @JoinColumn(name = "album_id"),
-//            inverseJoinColumns = @JoinColumn(name = "genre_id")
-//    )
-//    private List<Genre> genres;
 }

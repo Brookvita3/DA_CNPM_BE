@@ -12,11 +12,19 @@ import L03.CNPM.Music.models.Song;
 public interface ISongService {
     Page<Song> findAll(String keyword, Pageable pageable);
 
+    Page<Song> findAllPending(String keyword, Pageable pageable);
+
+    Page<Song> findAllByArtistId(String artistId, Pageable pageable);
+
+    Song approveSong(String id) throws Exception;
+
+    Song rejectSong(String id) throws Exception;
+
     Map<String, Object> uploadSong(MultipartFile file) throws Exception;
 
     Song createSong(SongMetadataDTO metadataSongDTO) throws Exception;
 
     void deleteSong(String publicId) throws Exception;
 
-    Song updateSong(String id, Long userId) throws Exception;
+    Song updateSong(String id, String userId) throws Exception;
 }

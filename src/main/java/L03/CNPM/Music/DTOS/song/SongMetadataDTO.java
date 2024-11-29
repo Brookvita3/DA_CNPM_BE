@@ -18,6 +18,9 @@ public class SongMetadataDTO {
     @JsonProperty("release_date")
     private String releaseDate;
 
+    @JsonProperty("artist_id")
+    private Long artistId;
+
     @JsonProperty("album_id")
     private Long albumId;
 

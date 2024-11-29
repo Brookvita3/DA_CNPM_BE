@@ -1,8 +1,7 @@
-package L03.CNPM.Music.DTOS;
+package L03.CNPM.Music.DTOS.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @AllArgsConstructor
@@ -11,27 +10,24 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserDTO {
+public class CreateUserDTO {
     @JsonProperty("email")
-    private String email = "";
+    @NotBlank(message = "Email cannot be blank")
+    private String email;
 
     @JsonProperty("username")
-    private String username = "";
+    @NotBlank(message = "Username cannot be blank")
+    private String username;
 
     @NotBlank(message = "Password cannot be blank")
-    private String password = "";
+    private String password;
 
     @JsonProperty("retype_password")
-    private String retypePassword = "";
+    private String retypePassword;
 
     @JsonProperty("country")
-    private String country = "";
+    private String country;
 
     @JsonProperty("date_of_birth")
     private String dateOfBirth;
-
-    @NotNull(message = "Role ID is required")
-    @JsonProperty("role_id")
-    // role admin not permitted
-    private Long roleId;
 }

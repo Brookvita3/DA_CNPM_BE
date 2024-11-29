@@ -17,11 +17,8 @@ public class SongResponse {
     @JsonProperty("name")
     private String name;
 
-    @JsonProperty("duration")
-    private Double duration;
-
-    @JsonProperty("public_id")
-    private String publicId;
+    @JsonProperty("secure_url")
+    private String secureUrl;
 
     @JsonProperty("status")
     private String status;
@@ -30,8 +27,7 @@ public class SongResponse {
         return SongResponse.builder()
                 .id(song.getId().toString())
                 .name(song.getName())
-                .duration(song.getDuration())
-                .publicId(song.getPublicId())
+                .secureUrl(song.getSecureUrl())
                 .status(song.getStatus().name())
                 .build();
     }

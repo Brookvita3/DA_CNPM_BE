@@ -1,7 +1,6 @@
-package L03.CNPM.Music.DTOS;
+package L03.CNPM.Music.DTOS.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 

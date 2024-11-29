@@ -35,7 +35,7 @@ public class Song {
     private String publicId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "ENUM('DRAFT', 'PENDING', 'PUBLISHED', 'REJECTED') DEFAULT 'DRAFT'")
+    @Column(name = "status", nullable = false, columnDefinition = "ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT'")
     @Builder.Default
     private Status status = Status.DRAFT;
 
@@ -48,10 +48,13 @@ public class Song {
     @Column(name = "created_at", nullable = false)
     private String createdAt;
 
+    @Column(name = "updated_at", nullable = false)
+    private String updatedAt;
+
     public enum Status {
         DRAFT,
         PENDING,
-        PUBLISHED,
+        APPROVED,
         REJECTED
     }
 }

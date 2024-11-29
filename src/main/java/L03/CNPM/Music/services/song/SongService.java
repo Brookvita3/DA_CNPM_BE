@@ -15,12 +15,14 @@ import com.cloudinary.utils.ObjectUtils;
 
 import L03.CNPM.Music.DTOS.song.SongMetadataDTO;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
+import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.models.User;
-import L03.CNPM.Music.repositories.GenreRepository;
+import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.SongRepository;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.utils.AudioFileUtils;
+import L03.CNPM.Music.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,6 +32,8 @@ public class SongService implements ISongService {
     private final Cloudinary cloudinary;
     private final SongRepository songRepository;
     private final UserRepository userRepository;
+    private final AlbumRepository albumRepository;
+    private final DateUtils dateUtils;
 
     @Override
     public Page<Song> findAll(String keyword, Pageable pageable) {
@@ -40,6 +44,57 @@ public class SongService implements ISongService {
             }
         }
         return songRepository.findAll(keyword, pageable);
+    }
+
+    @Override
+    public Page<Song> findAllPending(String keyword, Pageable pageable) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+        return songRepository.findAllPending(keyword, pageable);
+    }
+
+    @Override
+    public Page<Song> findAllByArtistId(String artistId, Pageable pageable) {
+        return songRepository.findAllByArtistId(Long.parseLong(artistId), pageable);
+    }
+
+    @Override
+    public Song approveSong(String id) throws Exception {
+        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
+        if (existingSong.isEmpty()) {
+            throw new DataNotFoundException("Song not found.");
+        }
+        Song song = existingSong.get();
+
+        song.setStatus(Song.Status.APPROVED);
+
+        if (song.getCreatedAt() == null) {
+            song.setCreatedAt(dateUtils.getCurrentDate());
+        }
+        song.setUpdatedAt(dateUtils.getCurrentDate());
+
+        return songRepository.save(song);
+    }
+
+    @Override
+    public Song rejectSong(String id) throws Exception {
+        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
+        if (existingSong.isEmpty()) {
+            throw new DataNotFoundException("Song not found.");
+        }
+        Song song = existingSong.get();
+
+        song.setStatus(Song.Status.REJECTED);
+        if (song.getCreatedAt() == null) {
+            song.setCreatedAt(dateUtils.getCurrentDate());
+        }
+        song.setUpdatedAt(dateUtils.getCurrentDate());
+
+        return songRepository.save(song);
     }
 
     @Override
@@ -79,20 +134,25 @@ public class SongService implements ISongService {
 
     @Override
     public Song createSong(SongMetadataDTO metadataSongDTO) throws Exception {
-        // if (metadataSongDTO.getAlbumId() != null) {
-        // Optional<Album> existingAlbum =
-        // albumRepository.findByAlbumId(metadataSongDTO.getAlbumId());
-        // if (existingAlbum.isEmpty()) {
-        // throw new DataNotFoundException("Album not found.");
-        // }
-        // }
+        if (metadataSongDTO.getAlbumId() != null) {
+            Optional<Album> existingAlbum = albumRepository.findById(metadataSongDTO.getAlbumId());
+            if (existingAlbum.isEmpty()) {
+                throw new DataNotFoundException("Album not found.");
+            }
+        }
 
         Song newSong = Song.builder()
                 .name(metadataSongDTO.getName())
                 .description(metadataSongDTO.getDescription())
                 .releaseDate(metadataSongDTO.getReleaseDate())
+                .artistId(metadataSongDTO.getArtistId())
+                .albumId(metadataSongDTO.getAlbumId())
                 .duration(metadataSongDTO.getDuration())
+                .publicId(metadataSongDTO.getPublicId())
+                .secureUrl(metadataSongDTO.getSecureUrl())
                 .status(Song.Status.DRAFT)
+                .createdAt(dateUtils.getCurrentDate())
+                .updatedAt(dateUtils.getCurrentDate())
                 .build();
 
         return songRepository.save(newSong);
@@ -116,9 +176,9 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song updateSong(String id, Long userId) throws Exception {
+    public Song updateSong(String id, String userId) throws Exception {
         User user = null;
-        Optional<User> existingArtist = userRepository.findById(userId);
+        Optional<User> existingArtist = userRepository.findById(Long.parseLong(userId));
         if (existingArtist.isEmpty()) {
             throw new DataNotFoundException("Artist not found.");
         }
@@ -135,6 +195,12 @@ public class SongService implements ISongService {
         }
 
         song.setStatus(Song.Status.PENDING);
+
+        if (song.getCreatedAt() == null) {
+            song.setCreatedAt(dateUtils.getCurrentDate());
+        }
+        song.setUpdatedAt(dateUtils.getCurrentDate());
+
         return songRepository.save(song);
     }
 }

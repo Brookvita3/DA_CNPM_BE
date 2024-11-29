@@ -30,13 +30,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtil;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
+    protected void doFilterInternal(@SuppressWarnings("null") @NonNull HttpServletRequest request,
+            @SuppressWarnings("null") @NonNull HttpServletResponse response,
+            @SuppressWarnings("null") @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
             if (isBypassToken(request)) {
-                filterChain.doFilter(request, response); // enable bypass
+                filterChain.doFilter(request, response);
                 return;
             }
 
@@ -73,7 +73,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
-                Pair.of(String.format("%s/roles", apiPrefix), "GET"));
+                Pair.of(String.format("%s/roles", apiPrefix), "GET"),
+                Pair.of(String.format("%s/songs", apiPrefix), "GET"));
 
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();
@@ -81,7 +82,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         for (Pair<String, String> token : bypassTokens) {
             String path = token.getFirst();
             String method = token.getSecond();
-            // Check if the request path and method match any pair in the bypassTokens list
             if (requestPath.matches(path.replace("**", ".*"))
                     && requestMethod.equalsIgnoreCase(method)) {
                 return true;
