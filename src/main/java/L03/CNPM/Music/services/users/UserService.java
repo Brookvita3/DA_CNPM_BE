@@ -13,6 +13,7 @@ import L03.CNPM.Music.models.Role;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.repositories.RoleRepository;
+import L03.CNPM.Music.utils.DateUtils;
 import L03.CNPM.Music.utils.MessageKeys;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -42,6 +43,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final Cloudinary cloudinary;
+    private final DateUtils dateUtils;
 
     @Override
     public Page<User> findAll(String keyword, Pageable pageable) {
@@ -74,8 +76,8 @@ public class UserService implements IUserService {
                 .password(encodedPassword)
                 .country(userDTO.getCountry())
                 .dateOfBirth(userDTO.getDateOfBirth())
-                .createdAt("LocalDateTime.now().toString()")
-                .updatedAt("LocalDateTime.now().toString()")
+                .createdAt(dateUtils.getCurrentDate())
+                .updatedAt(dateUtils.getCurrentDate())
                 .isActive(true)
                 .role(role)
                 .build();

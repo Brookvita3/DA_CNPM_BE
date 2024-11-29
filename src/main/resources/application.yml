@@ -5,10 +5,10 @@ api:
   prefix: /api/v1
 
 spring:
-  datasource:
-      url: 
-      username: 
-      driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    url: cloudinary://445134711935475:ncDqwHlUIO4rZ62U6SjR8S99i8I@dpxhfbpd0
+#    username: dpxhfbpd0
+#    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: none
@@ -36,15 +36,17 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+# cloudinary:
+#   cloud_name: dq76uikpj
+#   api_key: 252687583593391
+#   api_secret: bBRpdVI_fvwi2-qchZek5_uGfeM
 
 cloudinary:
-  cloud_name: dq76uikpj
-  api_key: 252687583593391
-  api_secret: bBRpdVI_fvwi2-qchZek5_uGfeM
+  cloud_name: dpxhfbpd0
+  api_key: 445134711935475
+  api_secret: ncDqwHlUIO4rZ62U6SjR8S99i8I
 
 jwt:
   expiration: 2592000
   expiration-refresh-token: 5184000
   secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
-
-    

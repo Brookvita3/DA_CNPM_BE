@@ -116,7 +116,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song updateSong(String id, String userId) throws Exception {
+    public Song updateSong(String id, Long userId) throws Exception {
         User user = null;
         Optional<User> existingArtist = userRepository.findById(userId);
         if (existingArtist.isEmpty()) {

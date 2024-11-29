@@ -138,7 +138,7 @@ public class SongController {
                 }
 
                 try {
-                        Song song = songService.updateSong(id, userId);
+                        Song song = songService.updateSong(id, Long.valueOf(userId));
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Update song successfully")
