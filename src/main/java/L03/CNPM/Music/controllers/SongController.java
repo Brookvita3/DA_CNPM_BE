@@ -67,19 +67,19 @@ public class SongController {
          */
         @GetMapping("")
         public ResponseEntity<ResponseObject> Get(
-                        @RequestParam(defaultValue = "", required = false) String keyword,
-                        @RequestParam(defaultValue = "1") int page,
-                        @RequestParam(defaultValue = "10") int limit) {
+                @RequestParam(defaultValue = "", required = false) String keyword,
+                @RequestParam(defaultValue = "1") int page,
+                @RequestParam(defaultValue = "10") int limit) {
                 if (page < 1) {
                         page = 1;
                 }
 
                 PageRequest pageRequest = PageRequest.of(
-                                page - 1, limit,
-                                Sort.by("id").ascending());
+                        page - 1, limit,
+                        Sort.by("id").ascending());
 
                 Page<SongResponse> songPage = songService.findAll(keyword, pageRequest)
-                                .map(SongResponse::fromSong);
+                        .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();
 
@@ -89,17 +89,17 @@ public class SongController {
 
                 List<SongResponse> songResponses = songPage.getContent();
                 SongListResponse songListResponse = SongListResponse.builder()
-                                .songs(songResponses)
-                                .totalPages(totalPages)
-                                .currentPage(currentPage)
-                                .itemsPerPage(itemsPerPage)
-                                .build();
+                        .songs(songResponses)
+                        .totalPages(totalPages)
+                        .currentPage(currentPage)
+                        .itemsPerPage(itemsPerPage)
+                        .build();
 
                 return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                .message("Get all song successfully")
-                                .status(HttpStatus.OK)
-                                .data(songListResponse)
-                                .build());
+                        .message("Get all song successfully")
+                        .status(HttpStatus.OK)
+                        .data(songListResponse)
+                        .build());
         }
 
         // ENDPOINT: {{API_PREFIX}}/songs/artist [GET]
@@ -124,26 +124,26 @@ public class SongController {
         @GetMapping("/artist")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> GetArtistSong(
-                        @RequestParam(defaultValue = "1") int page,
-                        @RequestParam(defaultValue = "10") int limit,
-                        @RequestHeader("Authorization") String authorizationHeader) {
+                @RequestParam(defaultValue = "1") int page,
+                @RequestParam(defaultValue = "10") int limit,
+                @RequestHeader("Authorization") String authorizationHeader) {
                 String token = authorizationHeader.substring(7);
                 String userId = jwtTokenUtils.getUserId(token);
 
                 if (userId == null) {
                         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseObject.builder()
-                                        .message("Unauthorized")
-                                        .status(HttpStatus.UNAUTHORIZED)
-                                        .data(null)
-                                        .build());
+                                .message("Unauthorized")
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .data(null)
+                                .build());
                 }
 
                 PageRequest pageRequest = PageRequest.of(
-                                page - 1, limit,
-                                Sort.by("id").ascending());
+                        page - 1, limit,
+                        Sort.by("id").ascending());
 
                 Page<SongResponse> songPage = songService.findAllByArtistId(userId, pageRequest)
-                                .map(SongResponse::fromSong);
+                        .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();
 
@@ -153,17 +153,17 @@ public class SongController {
 
                 List<SongResponse> songResponses = songPage.getContent();
                 SongListResponse songListResponse = SongListResponse.builder()
-                                .songs(songResponses)
-                                .totalPages(totalPages)
-                                .currentPage(currentPage)
-                                .itemsPerPage(itemsPerPage)
-                                .build();
+                        .songs(songResponses)
+                        .totalPages(totalPages)
+                        .currentPage(currentPage)
+                        .itemsPerPage(itemsPerPage)
+                        .build();
 
                 return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                .message("Get artist song successfully")
-                                .status(HttpStatus.OK)
-                                .data(songListResponse)
-                                .build());
+                        .message("Get artist song successfully")
+                        .status(HttpStatus.OK)
+                        .data(songListResponse)
+                        .build());
         }
 
         // ENDPOINT: {{API_PREFIX}}/songs/pending [GET]
@@ -189,20 +189,20 @@ public class SongController {
         @GetMapping("/pending")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> GetPendingSong(
-                        @RequestParam(defaultValue = "", required = false) String keyword,
-                        @RequestParam(defaultValue = "1") int page,
-                        @RequestParam(defaultValue = "10") int limit) {
+                @RequestParam(defaultValue = "", required = false) String keyword,
+                @RequestParam(defaultValue = "1") int page,
+                @RequestParam(defaultValue = "10") int limit) {
 
                 if (page < 1) {
                         page = 1;
                 }
 
                 PageRequest pageRequest = PageRequest.of(
-                                page - 1, limit,
-                                Sort.by("id").ascending());
+                        page - 1, limit,
+                        Sort.by("id").ascending());
 
                 Page<SongResponse> songPage = songService.findAllPending(keyword, pageRequest)
-                                .map(SongResponse::fromSong);
+                        .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();
 
@@ -212,17 +212,17 @@ public class SongController {
 
                 List<SongResponse> songResponses = songPage.getContent();
                 SongListResponse songListResponse = SongListResponse.builder()
-                                .songs(songResponses)
-                                .totalPages(totalPages)
-                                .currentPage(currentPage)
-                                .itemsPerPage(itemsPerPage)
-                                .build();
+                        .songs(songResponses)
+                        .totalPages(totalPages)
+                        .currentPage(currentPage)
+                        .itemsPerPage(itemsPerPage)
+                        .build();
 
                 return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                .message("Get pending song successfully")
-                                .status(HttpStatus.OK)
-                                .data(songListResponse)
-                                .build());
+                        .message("Get pending song successfully")
+                        .status(HttpStatus.OK)
+                        .data(songListResponse)
+                        .build());
         }
 
         // ENDPOINT: {{API_PREFIX}}/songs/cloudinary [POST]
@@ -244,21 +244,21 @@ public class SongController {
         @PostMapping("/cloudinary")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UploadSongToCloudinary(
-                        @RequestPart MultipartFile file) throws Exception {
+                @RequestPart MultipartFile file) throws Exception {
                 try {
                         Map<String, Object> response = songService.uploadSong(file);
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Upload song successfully")
-                                        .status(HttpStatus.OK)
-                                        .data(CloudinaryResponse.fromMap(response))
-                                        .build());
+                                .message("Upload song successfully")
+                                .status(HttpStatus.OK)
+                                .data(CloudinaryResponse.fromMap(response))
+                                .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
         }
 
@@ -277,23 +277,23 @@ public class SongController {
          * }
          * }
          */
-        @PostMapping("")
+        @PostMapping("/uploads")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UploadSong(
-                        @Valid @RequestBody SongMetadataDTO metadataSongDTO,
-                        @RequestHeader("Authorization") String authorizationHeader,
-                        BindingResult result) {
+                @Valid @RequestBody SongMetadataDTO metadataSongDTO,
+                @RequestHeader("Authorization") String authorizationHeader,
+                BindingResult result) {
                 if (result.hasErrors()) {
                         List<String> errorMessages = result.getFieldErrors()
-                                        .stream()
-                                        .map(FieldError::getDefaultMessage)
-                                        .toList();
+                                .stream()
+                                .map(FieldError::getDefaultMessage)
+                                .toList();
 
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(errorMessages.toString())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(errorMessages.toString())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
 
                 try {
@@ -305,15 +305,15 @@ public class SongController {
 
                         if (!dateUtils.isValidDate(metadataSongDTO.getReleaseDate())) {
                                 throw new IllegalArgumentException(
-                                                "Release date is invalid.");
+                                        "Release date is invalid.");
                         }
 
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
 
                 try {
@@ -324,16 +324,16 @@ public class SongController {
                         // Album album = albumService.Detail(newSong.getAlbumId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Create song successfully")
-                                        .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(newSong, artist))
-                                        .build());
+                                .message("Create song successfully")
+                                .status(HttpStatus.OK)
+                                .data(SongDetailResponse.fromSong(newSong, artist))
+                                .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
         }
 
@@ -355,16 +355,16 @@ public class SongController {
         @PatchMapping("/submit/{id}")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UpdateSong(@PathVariable String id,
-                        @RequestHeader("Authorization") String authorizationHeader) {
+                                                         @RequestHeader("Authorization") String authorizationHeader) {
                 String token = authorizationHeader.substring(7);
                 String userId = jwtTokenUtils.getUserId(token);
 
                 if (userId == null) {
                         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseObject.builder()
-                                        .message("Unauthorized")
-                                        .status(HttpStatus.UNAUTHORIZED)
-                                        .data(null)
-                                        .build());
+                                .message("Unauthorized")
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .data(null)
+                                .build());
                 }
 
                 try {
@@ -375,16 +375,16 @@ public class SongController {
                         Album album = albumService.Detail(song.getAlbumId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Update song successfully")
-                                        .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(song, artist))
-                                        .build());
+                                .message("Update song successfully")
+                                .status(HttpStatus.OK)
+                                .data(SongDetailResponse.fromSong(song, artist))
+                                .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
         }
 
@@ -414,16 +414,16 @@ public class SongController {
                         Album album = albumService.Detail(song.getAlbumId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Approve song successfully")
-                                        .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(song, artist))
-                                        .build());
+                                .message("Approve song successfully")
+                                .status(HttpStatus.OK)
+                                .data(SongDetailResponse.fromSong(song, artist))
+                                .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
         }
 
@@ -453,16 +453,16 @@ public class SongController {
                         Album album = albumService.Detail(song.getAlbumId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Reject song successfully")
-                                        .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(song, artist))
-                                        .build());
+                                .message("Reject song successfully")
+                                .status(HttpStatus.OK)
+                                .data(SongDetailResponse.fromSong(song, artist))
+                                .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
                 }
         }
 }

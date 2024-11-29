@@ -5,6 +5,7 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SongMetadataDTO {
