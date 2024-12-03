@@ -466,8 +466,6 @@ public class SongController {
                 }
         }
 
-
-
         @PostMapping("/upload-song-image/{id}")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UploadImageSong(

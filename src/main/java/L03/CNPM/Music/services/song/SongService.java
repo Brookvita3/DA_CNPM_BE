@@ -47,6 +47,7 @@ public class SongService implements ISongService {
                 keyword = null;
             }
         }
+        var x = songRepository.findAll(keyword, pageable);
         return songRepository.findAll(keyword, pageable);
     }
 
@@ -138,7 +139,6 @@ public class SongService implements ISongService {
 
     @Override
     public Song UploadImageSong(MultipartFile file, Long songId) throws Exception {
-        Map<String, Object> response = null;
         Optional<Song> optionalSong = songRepository.findById(songId);
         if (optionalSong.isEmpty()) {
             throw new DataNotFoundException("song not found.");

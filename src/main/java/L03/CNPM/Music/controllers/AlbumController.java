@@ -14,6 +14,7 @@ import L03.CNPM.Music.responses.album.AlbumDetailResponse;
 import L03.CNPM.Music.responses.album.AlbumResponse;
 import L03.CNPM.Music.responses.song.SongResponse;
 import L03.CNPM.Music.services.album.AlbumService;
+import L03.CNPM.Music.services.users.UserService;
 import L03.CNPM.Music.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class AlbumController {
         private final AlbumService albumService;
         private final UserRepository userRepository;
         private final SongRepository songRepository;
+    private final UserService userService;
         private final TokenUtils tokenUtils;
 
         @PostMapping("")
@@ -160,6 +163,30 @@ public class AlbumController {
                                         .data(albumResponseList)
                                         .build());
                 } catch (DataNotFoundException e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
+                }
+        }
+
+        @PostMapping("/upload-album-image/{id}")
+        @PreAuthorize("hasRole('ROLE_ARTIST')")
+        public ResponseEntity<ResponseObject> UploadImageAlbum(
+                @RequestPart MultipartFile file,
+                @PathVariable Long id) throws Exception {
+                try {
+                        Album album = albumService.UploadImageAlbum(file, id);
+                        List<SongResponse> songResponseList = songRepository.findAllByAlbumId(id).stream().map(SongResponse::fromSong).toList();
+                        User artist = userService.Detail(album.getArtistId());
+
+                        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                .message("Upload image for album successfully")
+                                .status(HttpStatus.OK)
+                                .data(AlbumDetailResponse.fromAlbum(album, songResponseList, artist))
+                                .build());
+                } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
                                 .message(e.getMessage())
                                 .status(HttpStatus.BAD_REQUEST)

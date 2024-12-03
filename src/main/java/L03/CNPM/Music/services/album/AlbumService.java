@@ -5,6 +5,7 @@ import L03.CNPM.Music.DTOS.album.UpdateAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadSongToAlbumDTO;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
+import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Genre;
 import L03.CNPM.Music.models.Song;
@@ -12,10 +13,15 @@ import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.GenreRepository;
 import L03.CNPM.Music.repositories.SongRepository;
 import L03.CNPM.Music.responses.song.SongResponse;
+import L03.CNPM.Music.utils.ImageFileUtils;
+import L03.CNPM.Music.utils.MessageKeys;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,9 +34,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AlbumService implements IAlbumService {
+    private final Cloudinary cloudinary;
     private final AlbumRepository albumRepository;
     private final SongRepository songRepository;
     private final GenreRepository genreRepository;
+    private final ImageFileUtils imageFileUtils;
 
     @Override
     public Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws DataNotFoundException {
@@ -166,4 +174,36 @@ public class AlbumService implements IAlbumService {
         return albumList;
     }
 
+    @Override
+    public Album UploadImageAlbum(MultipartFile file, Long albumId) throws DataNotFoundException, UploadCloudinaryException {
+        Optional<Album> optionalAlbum = albumRepository.findById(albumId);
+        if (optionalAlbum.isEmpty()) {
+            throw new DataNotFoundException("album not found.");
+        }
+        Album existingAlbum = optionalAlbum.get();
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File does not exist or is empty.");
+        }
+
+        String fileType = file.getContentType();
+        if (!imageFileUtils.isValidImageFile(fileType, file.getOriginalFilename())) {
+            throw new IllegalArgumentException("File type is not supported: " + fileType);
+        }
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadParams = ObjectUtils.asMap(
+                    "resource_type", "image",
+                    "folder", "imageFolder");
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+            existingAlbum.setCoverUrl((String) uploadResult.get("url"));
+            albumRepository.save(existingAlbum);
+        } catch (Exception e){
+            throw new UploadCloudinaryException(MessageKeys.CLOUDINARY_UPLOAD_FAIL);
+        }
+        return existingAlbum;
+    }
 }
