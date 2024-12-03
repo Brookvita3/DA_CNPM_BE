@@ -51,6 +51,9 @@ public class Song {
     @Column(name = "updated_at", nullable = false)
     private String updatedAt;
 
+    @Column(name = "public_image_id")
+    private String publicImageId;
+
     public enum Status {
         DRAFT,
         PENDING,

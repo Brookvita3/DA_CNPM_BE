@@ -465,4 +465,29 @@ public class SongController {
                                 .build());
                 }
         }
+
+
+
+        @PostMapping("/upload-song-image/{id}")
+        @PreAuthorize("hasRole('ROLE_ARTIST')")
+        public ResponseEntity<ResponseObject> UploadImageSong(
+                @RequestPart MultipartFile file,
+                @PathVariable Long id) throws Exception {
+                try {
+                        Song song = songService.UploadImageSong(file, id);
+                        User artist = userService.Detail(song.getArtistId());
+
+                        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                .message("Upload image for song successfully")
+                                .status(HttpStatus.OK)
+                                .data(SongDetailResponse.fromSong(song,artist))
+                                .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+                                .message(e.getMessage())
+                                .status(HttpStatus.BAD_REQUEST)
+                                .data(null)
+                                .build());
+                }
+        }
 }

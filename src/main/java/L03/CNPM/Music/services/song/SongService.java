@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 
+import L03.CNPM.Music.exceptions.UploadCloudinaryException;
+import L03.CNPM.Music.utils.ImageFileUtils;
+import L03.CNPM.Music.utils.MessageKeys;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SongService implements ISongService {
     private final AudioFileUtils audioFileUtils;
+    private final ImageFileUtils imageFileUtils;
     private final Cloudinary cloudinary;
     private final SongRepository songRepository;
     private final UserRepository userRepository;
@@ -131,6 +135,42 @@ public class SongService implements ISongService {
         }
         return response;
     }
+
+    @Override
+    public Song UploadImageSong(MultipartFile file, Long songId) throws Exception {
+        Map<String, Object> response = null;
+        Optional<Song> optionalSong = songRepository.findById(songId);
+        if (optionalSong.isEmpty()) {
+            throw new DataNotFoundException("song not found.");
+        }
+        Song existingSong = optionalSong.get();
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File does not exist or is empty.");
+        }
+
+        String fileType = file.getContentType();
+        if (!imageFileUtils.isValidImageFile(fileType, file.getOriginalFilename())) {
+            throw new IllegalArgumentException("File type is not supported: " + fileType);
+        }
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadParams = ObjectUtils.asMap(
+                    "resource_type", "image",
+                    "folder", "imageFolder");
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+            existingSong.setPublicImageId((String) uploadResult.get("url"));
+            songRepository.save(existingSong);
+        } catch (Exception e){
+            throw new UploadCloudinaryException(MessageKeys.CLOUDINARY_UPLOAD_FAIL);
+        }
+        return existingSong;
+    }
+
+
 
     @Override
     public Song createSong(SongMetadataDTO metadataSongDTO) throws Exception {
