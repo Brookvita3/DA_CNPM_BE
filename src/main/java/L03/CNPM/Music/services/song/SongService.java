@@ -1,9 +1,11 @@
 package L03.CNPM.Music.services.song;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import L03.CNPM.Music.DTOS.song.ChangeStatusSongDTO;
 import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.utils.ImageFileUtils;
 import L03.CNPM.Music.utils.MessageKeys;
@@ -68,38 +70,23 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song approveSong(String id) throws Exception {
-        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
-        if (existingSong.isEmpty()) {
-            throw new DataNotFoundException("Song not found.");
+    public List<Song> approveSong(ChangeStatusSongDTO changeStatusSongDTO) throws Exception {
+        List<Song> songList = songRepository.findAllById(changeStatusSongDTO.getSong_id());
+        for (Song song : songList) {
+            song.setStatus(Song.Status.APPROVED);
+            songRepository.save(song);
         }
-        Song song = existingSong.get();
-
-        song.setStatus(Song.Status.APPROVED);
-
-        if (song.getCreatedAt() == null) {
-            song.setCreatedAt(dateUtils.getCurrentDate());
-        }
-        song.setUpdatedAt(dateUtils.getCurrentDate());
-
-        return songRepository.save(song);
+        return songList;
     }
 
     @Override
-    public Song rejectSong(String id) throws Exception {
-        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
-        if (existingSong.isEmpty()) {
-            throw new DataNotFoundException("Song not found.");
+    public List<Song> rejectSong(ChangeStatusSongDTO changeStatusSongDTO) throws Exception {
+        List<Song> songList = songRepository.findAllById(changeStatusSongDTO.getSong_id());
+        for (Song song : songList) {
+            song.setStatus(Song.Status.REJECTED);
+            songRepository.save(song);
         }
-        Song song = existingSong.get();
-
-        song.setStatus(Song.Status.REJECTED);
-        if (song.getCreatedAt() == null) {
-            song.setCreatedAt(dateUtils.getCurrentDate());
-        }
-        song.setUpdatedAt(dateUtils.getCurrentDate());
-
-        return songRepository.save(song);
+        return songList;
     }
 
     @Override

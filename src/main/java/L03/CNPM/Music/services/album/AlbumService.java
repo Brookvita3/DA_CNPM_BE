@@ -13,6 +13,7 @@ import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.GenreRepository;
 import L03.CNPM.Music.repositories.SongRepository;
 import L03.CNPM.Music.responses.song.SongResponse;
+import L03.CNPM.Music.utils.DateUtils;
 import L03.CNPM.Music.utils.ImageFileUtils;
 import L03.CNPM.Music.utils.MessageKeys;
 import com.cloudinary.Cloudinary;
@@ -37,6 +38,7 @@ public class AlbumService implements IAlbumService {
     private final Cloudinary cloudinary;
     private final AlbumRepository albumRepository;
     private final SongRepository songRepository;
+    private final DateUtils dateUtils;
     private final GenreRepository genreRepository;
     private final ImageFileUtils imageFileUtils;
 
@@ -108,6 +110,8 @@ public class AlbumService implements IAlbumService {
             album.setName(updateAlbumDTO.getName());
         if (updateAlbumDTO.getDescription() != null)
             album.setDescription(updateAlbumDTO.getDescription());
+
+        album.setUpdatedAt(dateUtils.getCurrentDate());
 
         verifyListSongId(updateAlbumDTO.getAddList());
         verifyListSongId(updateAlbumDTO.getDeleteList());

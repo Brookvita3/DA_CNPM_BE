@@ -1,7 +1,9 @@
 package L03.CNPM.Music.services.song;
 
+import java.util.List;
 import java.util.Map;
 
+import L03.CNPM.Music.DTOS.song.ChangeStatusSongDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,9 +18,9 @@ public interface ISongService {
 
     Page<Song> findAllByArtistId(String artistId, Pageable pageable);
 
-    Song approveSong(String id) throws Exception;
+    List<Song> approveSong(ChangeStatusSongDTO changeStatusSongDTO) throws Exception;
 
-    Song rejectSong(String id) throws Exception;
+    List<Song> rejectSong(ChangeStatusSongDTO changeStatusSongDTO) throws Exception;
 
     Map<String, Object> uploadSong(MultipartFile file) throws Exception;
 

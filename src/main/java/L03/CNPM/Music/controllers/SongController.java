@@ -1,5 +1,7 @@
 package L03.CNPM.Music.controllers;
 
+import L03.CNPM.Music.DTOS.album.ChangeStatusAlbumDTO;
+import L03.CNPM.Music.DTOS.song.ChangeStatusSongDTO;
 import L03.CNPM.Music.services.song.ISongService;
 import L03.CNPM.Music.services.users.IUserService;
 import L03.CNPM.Music.utils.DateUtils;
@@ -388,11 +390,9 @@ public class SongController {
                 }
         }
 
-        // ENDPOINT: {{API_PREFIX}}/songs/approve/{id} [PATCH]
+        // ENDPOINT: {{API_PREFIX}}/songs/approve [PATCH]
         // APPROVE SONG TO PUBLISH
         // HEADERS: AUTHENTICATION: YES (ONLY ADMIN CAN ACCESS)
-        // PARAMS:
-        // id: String
         /*
          * RESPONSE:
          * {
@@ -403,20 +403,16 @@ public class SongController {
          * }
          * }
          */
-        @PatchMapping("/approve/{id}")
+        @PatchMapping("/approve")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> ApproveSong(@PathVariable String id) {
+        public ResponseEntity<ResponseObject> ApproveSongs(@RequestBody ChangeStatusSongDTO changeStatusSongDTO) {
                 try {
-                        Song song = songService.approveSong(id);
-
-                        User artist = userService.Detail(song.getArtistId());
-
-                        Album album = albumService.Detail(song.getAlbumId());
-
+                        List<Song> songs = songService.approveSong(changeStatusSongDTO);
+                        List<SongResponse> songResponseList = songs.stream().map(SongResponse::fromSong).toList();
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                 .message("Approve song successfully")
                                 .status(HttpStatus.OK)
-                                .data(SongDetailResponse.fromSong(song, artist))
+                                .data(songResponseList)
                                 .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
@@ -427,7 +423,7 @@ public class SongController {
                 }
         }
 
-        // ENDPOINT: {{API_PREFIX}}/songs/reject/{id} [PATCH]
+        // ENDPOINT: {{API_PREFIX}}/songs/reject [PATCH]
         // REJECT SONG
         // HEADERS: AUTHENTICATION: YES (ONLY ADMIN CAN ACCESS)
         // PARAMS:
@@ -442,20 +438,16 @@ public class SongController {
          * }
          * }
          */
-        @PatchMapping("/reject/{id}")
+        @PatchMapping("/reject")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> RejectSong(@PathVariable String id) {
+        public ResponseEntity<ResponseObject> RejectSongs(@RequestBody ChangeStatusSongDTO changeStatusSongDTO) {
                 try {
-                        Song song = songService.rejectSong(id);
-
-                        User artist = userService.Detail(song.getArtistId());
-
-                        Album album = albumService.Detail(song.getAlbumId());
-
+                        List<Song> songs = songService.rejectSong(changeStatusSongDTO);
+                        List<SongResponse> songResponseList = songs.stream().map(SongResponse::fromSong).toList();
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                .message("Reject song successfully")
+                                .message("reject song successfully")
                                 .status(HttpStatus.OK)
-                                .data(SongDetailResponse.fromSong(song, artist))
+                                .data(songResponseList)
                                 .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()

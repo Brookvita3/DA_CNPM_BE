@@ -33,8 +33,9 @@ public class AlbumController {
         private final AlbumService albumService;
         private final UserRepository userRepository;
         private final SongRepository songRepository;
-    private final UserService userService;
+        private final UserService userService;
         private final TokenUtils tokenUtils;
+
 
         @PostMapping("")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
@@ -129,7 +130,7 @@ public class AlbumController {
 
         @PatchMapping("/approve")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> approveSong(
+        public ResponseEntity<ResponseObject> approveAlbums(
                 @RequestBody ChangeStatusAlbumDTO changeStatusAlbumDTO) {
                 try {
                         List<Album> albumList = albumService.approveAlbum(changeStatusAlbumDTO);
@@ -151,7 +152,7 @@ public class AlbumController {
 
         @PatchMapping("/reject")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> rejectSong(
+        public ResponseEntity<ResponseObject> rejectAlbums(
                 @RequestBody ChangeStatusAlbumDTO changeStatusAlbumDTO) {
                 try {
                         List<Album> albumList = albumService.rejectAlbum(changeStatusAlbumDTO);
