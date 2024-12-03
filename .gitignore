@@ -34,6 +34,6 @@ build/
 
 
 ### Local-config ###
-src/main/resources/sensitive-config.yml
 document1.yaml
 app.jar
+/src/main/resources/sensitive-config.yml

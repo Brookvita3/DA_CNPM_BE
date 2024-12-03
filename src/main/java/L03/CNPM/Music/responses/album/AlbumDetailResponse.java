@@ -9,6 +9,8 @@ import L03.CNPM.Music.responses.users.ArtistResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +47,7 @@ public class AlbumDetailResponse {
     @JsonProperty("create_at")
     private String createdAt;
 
-    public static AlbumDetailResponse fromAlbum(Album album, List<Song> songs, User artist) {
+    public static AlbumDetailResponse fromAlbum(Album album, List<SongResponse> songs, User artist) {
         return AlbumDetailResponse.builder()
                 .id(album.getId())
                 .name(album.getName())
@@ -55,7 +57,9 @@ public class AlbumDetailResponse {
                 .status(album.getStatus())
                 .createdAt(album.getCreatedAt())
                 .artist(ArtistResponse.fromUser(artist))
-                .songs(songs.stream().map(SongResponse::fromSong).collect(Collectors.toList()))
+                .songs(songs == null || songs.isEmpty()
+                        ? Collections.emptyList()
+                        : songs)
                 .build();
     }
 }

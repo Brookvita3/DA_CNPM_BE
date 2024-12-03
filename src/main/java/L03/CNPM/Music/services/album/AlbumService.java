@@ -1,5 +1,6 @@
 package L03.CNPM.Music.services.album;
 
+import L03.CNPM.Music.DTOS.album.ChangeStatusAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UpdateAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadSongToAlbumDTO;
@@ -32,9 +33,10 @@ public class AlbumService implements IAlbumService {
     private final GenreRepository genreRepository;
 
     @Override
-    public Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) {
+    public Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws DataNotFoundException {
         List<Long> genre_id = (uploadAlbumDTO.getGenre_Id()).stream().map(Long::valueOf).toList();
         List<Genre> genreList = genreRepository.findGenresByIdIn(genre_id);
+        if (albumRepository.existsByName(uploadAlbumDTO.getName())) { throw new  DataNotFoundException("Album already exist");}
         Album album = Album.builder()
                 .name(uploadAlbumDTO.getName())
                 .description(uploadAlbumDTO.getDescription())
@@ -54,8 +56,9 @@ public class AlbumService implements IAlbumService {
     public List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId)
             throws DataNotFoundException {
 
-        if (!albumRepository.existsById(albumId))
-            throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
+        Album album = albumRepository.findById(albumId).orElseThrow(() -> new DataNotFoundException("Album with ID %s no found".formatted(albumId)));
+        album.setStatus(Album.Status.PENDING);
+        albumRepository.save(album);
 
         List<Song> songs = new ArrayList<>();
         for (Long songId : uploadSongToAlbumDTO.getSongIds()) {
@@ -68,6 +71,8 @@ public class AlbumService implements IAlbumService {
             song.setAlbumId(albumId);
             songRepository.save(song);
         }
+
+
         return songs.stream().map(SongResponse::fromSong).toList();
     }
 
@@ -83,11 +88,13 @@ public class AlbumService implements IAlbumService {
     }
 
     @Override
-    public Album updateAlbum(Long albumId, UpdateAlbumDTO updateAlbumDTO) throws DataNotFoundException {
+    public Album updateAlbum(UpdateAlbumDTO updateAlbumDTO, Long albumId) throws DataNotFoundException {
         Optional<Album> exitedAlbum = albumRepository.findById(albumId);
         if (exitedAlbum.isEmpty())
             throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
         Album album = exitedAlbum.get();
+        if (album.getStatus() != Album.Status.APPROVED)
+            throw new DataNotFoundException("Album with ID %s is not approved yet".formatted(albumId));
 
         if (updateAlbumDTO.getName() != null)
             album.setName(updateAlbumDTO.getName());
@@ -138,4 +145,25 @@ public class AlbumService implements IAlbumService {
         return albumRepository.findById(albumId)
                 .orElseThrow(() -> new DataNotFoundException("Album with ID %s no found".formatted(albumId)));
     }
+
+    @Override
+    public List<Album> approveAlbum(ChangeStatusAlbumDTO changeStatusAlbumDTO) throws DataNotFoundException {
+        List<Album> albumList = albumRepository.findAllById(changeStatusAlbumDTO.getAlbum_id());
+        for (Album album : albumList) {
+            album.setStatus(Album.Status.APPROVED);
+            albumRepository.save(album);
+        }
+        return albumList;
+    }
+
+    @Override
+    public List<Album> rejectAlbum(ChangeStatusAlbumDTO changeStatusAlbumDTO) throws DataNotFoundException {
+        List<Album> albumList = albumRepository.findAllById(changeStatusAlbumDTO.getAlbum_id());
+        for (Album album : albumList) {
+            album.setStatus(Album.Status.REJECTED);
+            albumRepository.save(album);
+        }
+        return albumList;
+    }
+
 }

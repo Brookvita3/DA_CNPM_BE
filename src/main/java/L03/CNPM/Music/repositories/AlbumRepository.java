@@ -2,6 +2,7 @@ package L03.CNPM.Music.repositories;
 
 import L03.CNPM.Music.models.Album;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -23,4 +24,6 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 
     @SuppressWarnings("null")
     boolean existsById(Long albumId);
+
+    boolean existsByName(String name);
 }

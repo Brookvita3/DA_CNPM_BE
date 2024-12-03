@@ -53,6 +53,7 @@ CREATE TABLE album (
     name VARCHAR(255) NOT NULL,
     artist_id BIGINT NOT NULL,
     release_date VARCHAR(255),
+    description text,
     cover_url VARCHAR(255),
     status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
     created_at VARCHAR(255),
