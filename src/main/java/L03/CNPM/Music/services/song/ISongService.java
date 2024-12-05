@@ -31,4 +31,6 @@ public interface ISongService {
     void deleteSong(String publicId) throws Exception;
 
     Song updateSong(String id, String userId) throws Exception;
+
+    Song findById(Long id) throws Exception;
 }

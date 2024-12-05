@@ -2,6 +2,7 @@ package L03.CNPM.Music.services.users;
 
 import L03.CNPM.Music.DTOS.user.CreateUserDTO;
 import L03.CNPM.Music.DTOS.user.ResetPasswordDTO;
+import L03.CNPM.Music.DTOS.user.UpdateUserInfoDTO;
 import L03.CNPM.Music.DTOS.user.UserLoginDTO;
 import L03.CNPM.Music.models.User;
 import org.springframework.data.domain.Page;
@@ -26,4 +27,6 @@ public interface IUserService {
     User BlockOrEnable(Long userId, Boolean active) throws Exception;
 
     User UpdateImageProfile(Long userId, MultipartFile file) throws Exception;
+
+    User UpdateUserInfo(Long userId, UpdateUserInfoDTO updateUserInfoDTO) throws Exception;
 }

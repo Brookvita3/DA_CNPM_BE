@@ -10,6 +10,7 @@ import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.utils.ImageFileUtils;
 import L03.CNPM.Music.utils.MessageKeys;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,13 +152,11 @@ public class SongService implements ISongService {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
             existingSong.setPublicImageId((String) uploadResult.get("url"));
             songRepository.save(existingSong);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UploadCloudinaryException(MessageKeys.CLOUDINARY_UPLOAD_FAIL);
         }
         return existingSong;
     }
-
-
 
     @Override
     public Song createSong(SongMetadataDTO metadataSongDTO) throws Exception {
@@ -230,4 +229,14 @@ public class SongService implements ISongService {
 
         return songRepository.save(song);
     }
+
+    @Override
+    public Song findById(Long id) throws Exception {
+        Optional<Song> song = songRepository.findById(id);
+        if (song.isEmpty()) {
+            throw new DataNotFoundException("Song not found.");
+        }
+        return song.get();
+    }
+
 }

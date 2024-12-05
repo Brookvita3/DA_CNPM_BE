@@ -2,6 +2,7 @@ package L03.CNPM.Music.controllers;
 
 import L03.CNPM.Music.DTOS.user.CreateUserDTO;
 import L03.CNPM.Music.DTOS.user.ResetPasswordDTO;
+import L03.CNPM.Music.DTOS.user.UpdateUserInfoDTO;
 import L03.CNPM.Music.DTOS.user.UserLoginDTO;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.components.LocalizationUtils;
@@ -32,6 +33,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.http.HttpHeaders;
 import java.util.List;
 
 @RestController
@@ -429,5 +431,21 @@ public class UserController {
                  * return false;
                  * }
                  */
+        }
+
+        @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER') or hasRole('ROLE_LISTENER')")
+        @PatchMapping("/info/update")
+        public ResponseEntity<ResponseObject> updateInfo(
+                        @RequestHeader("Authorization") String authorizationHeader,
+                        @RequestBody UpdateUserInfoDTO updateUserInfoDTO) throws Exception {
+
+                String token = authorizationHeader.substring(7);
+                String userId = jwtTokenUtils.getUserId(token);
+                User updatedUser = userService.UpdateUserInfo(Long.parseLong(userId), updateUserInfoDTO);
+                return ResponseEntity.ok().body(ResponseObject.builder()
+                                .message("Update user info successfully")
+                                .status(HttpStatus.OK)
+                                .data(UserResponse.fromUser(updatedUser))
+                                .build());
         }
 }

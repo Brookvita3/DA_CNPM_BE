@@ -2,6 +2,7 @@ package L03.CNPM.Music.services.users;
 
 import L03.CNPM.Music.DTOS.user.CreateUserDTO;
 import L03.CNPM.Music.DTOS.user.ResetPasswordDTO;
+import L03.CNPM.Music.DTOS.user.UpdateUserInfoDTO;
 import L03.CNPM.Music.DTOS.user.UserLoginDTO;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.components.LocalizationUtils;
@@ -229,5 +230,27 @@ public class UserService implements IUserService {
         }
 
         return existingUser;
+    }
+
+    @Override
+    public User UpdateUserInfo(Long userId, UpdateUserInfoDTO updateUserDTO) throws Exception {
+
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException(
+                        MessageKeys.USER_DOES_NOT_EXISTS));
+        if (updateUserDTO.getUsername() != null)
+            existingUser.setUsername(updateUserDTO.getUsername());
+        if (updateUserDTO.getEmail() != null)
+            existingUser.setEmail(updateUserDTO.getEmail());
+        if (updateUserDTO.getPassword() != null) {
+            String password = updateUserDTO.getPassword();
+            String encodedPassword = passwordEncoder.encode(password);
+            existingUser.setPassword(encodedPassword);
+        }
+        if (updateUserDTO.getCountry() != null)
+            existingUser.setCountry(validationUtils.convertAndUpperCase(updateUserDTO.getCountry()));
+        if (updateUserDTO.getDateOfBirth() != null)
+            existingUser.setDateOfBirth(dateUtils.validateDateOfBirth(updateUserDTO.getDateOfBirth()));
+        return userRepository.save(existingUser);
     }
 }
