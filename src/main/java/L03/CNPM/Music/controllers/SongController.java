@@ -48,6 +48,45 @@ public class SongController {
         private final IAlbumService albumService;
         private final SongRepository songRepository;
 
+        // For admin get all song
+        @GetMapping("/admin/all")
+        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        public ResponseEntity<ResponseObject> AdminGetSong(
+                        @RequestParam(defaultValue = "", required = false) String keyword,
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+                if (page < 1) {
+                        page = 1;
+                }
+
+                PageRequest pageRequest = PageRequest.of(
+                                page - 1, limit,
+                                Sort.by("id").ascending());
+
+                Page<SongResponse> songPage = songRepository.AdminfindAll(keyword, pageRequest)
+                                .map(SongResponse::fromSong);
+
+                int totalPages = songPage.getTotalPages();
+
+                int currentPage = songPage.getNumber() + 1;
+
+                int itemsPerPage = songPage.getSize();
+
+                List<SongResponse> songResponses = songPage.getContent();
+                SongListResponse songListResponse = SongListResponse.builder()
+                                .songs(songResponses)
+                                .totalPages(totalPages)
+                                .currentPage(currentPage)
+                                .itemsPerPage(itemsPerPage)
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                .message("Get all song by admin successfully")
+                                .status(HttpStatus.OK)
+                                .data(songListResponse)
+                                .build());
+        }
+
         // ENDPOINT: {{API_PREFIX}}/songs [GET]
         // GET ALL SONGS IN SYSTEM, USE MAINLY FOR ALL SYSTEM
         // HEADERS: AUTHENTICATION: YES (ALL USER CAN ACCESS)
@@ -68,8 +107,9 @@ public class SongController {
          * }
          * }
          */
-        @GetMapping("")
-        public ResponseEntity<ResponseObject> Get(
+        @GetMapping("/user")
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        public ResponseEntity<ResponseObject> UserGetSong(
                         @RequestParam(defaultValue = "", required = false) String keyword,
                         @RequestParam(defaultValue = "1") int page,
                         @RequestParam(defaultValue = "10") int limit) {
@@ -167,6 +207,27 @@ public class SongController {
                                 .status(HttpStatus.OK)
                                 .data(songListResponse)
                                 .build());
+        }
+
+        // For listener want to get song by artist
+        @GetMapping("/artists/{artistId}")
+        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
+        public ResponseEntity<ResponseObject> findSongByArtistId(@PathVariable Long artistId) {
+                try {
+                        List<SongResponse> songResponseList = songRepository.UserfindAllByArtistId(artistId, null)
+                                        .map(SongResponse::fromSong).toList();
+                        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                        .message("Get song detail successfully")
+                                        .status(HttpStatus.OK)
+                                        .data(songResponseList)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+                                        .message(e.getMessage())
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .data(null)
+                                        .build());
+                }
         }
 
         // ENDPOINT: {{API_PREFIX}}/songs/pending [GET]
@@ -482,8 +543,9 @@ public class SongController {
                 }
         }
 
+        // For user want to get song by id
         @GetMapping("/{id}")
-        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
+        @PreAuthorize("hasRole('ROLE_LISTENER')")
         public ResponseEntity<ResponseObject> findSongById(@PathVariable Long id) {
                 try {
                         Song song = songService.findById(id);
@@ -502,32 +564,13 @@ public class SongController {
                 }
         }
 
+        // For listener want to get song by album
         @GetMapping("/albums/{albumId}")
-        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> findSongByAlbumId(@PathVariable Long albumId) {
+        @PreAuthorize("hasRole('ROLE_LISTENER')")
+        public ResponseEntity<ResponseObject> ListenerFindSongByAlbumId(@PathVariable Long albumId) {
                 try {
-                        List<SongResponse> songResponseList = songRepository.findAllByAlbumId(albumId).stream()
-                                        .map(SongResponse::fromSong).toList();
-                        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Get song detail successfully")
-                                        .status(HttpStatus.OK)
-                                        .data(songResponseList)
-                                        .build());
-                } catch (Exception e) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
-                }
-        }
-
-        // For listener want to get song by artist
-        @GetMapping("/artists/{artistId}")
-        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> findSongByArtistId(@PathVariable Long artistId) {
-                try {
-                        List<SongResponse> songResponseList = songRepository.findAllByArtistId(artistId, null)
+                        List<SongResponse> songResponseList = songRepository.UserfindAllByAlbumId(albumId, null)
+                                        .stream()
                                         .map(SongResponse::fromSong).toList();
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Get song detail successfully")

@@ -30,4 +30,13 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     List<Song> findAllByAlbumId(Long albumId);
 
     boolean existsById(@SuppressWarnings("null") Long albumId);
+
+    @Query("SELECT s FROM Song s WHERE s.artistId = :artistId AND s.status = 'APPROVED'")
+    Page<Song> UserfindAllByArtistId(@Param("artistId") Long artistId, Pageable pageable);
+
+    @Query("SELECT s FROM Song s WHERE s.albumId = :albumId AND s.status = 'APPROVED'")
+    Page<Song> UserfindAllByAlbumId(@Param("albumId") Long albumId, Pageable pageable);
+
+    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%)")
+    Page<Song> AdminfindAll(@Param("keyword") String keyword, Pageable pageable);
 }

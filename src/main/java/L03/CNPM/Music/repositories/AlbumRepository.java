@@ -26,4 +26,9 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     boolean existsById(Long albumId);
 
     boolean existsByName(String name);
+
+    @Query("SELECT a FROM Album a WHERE (:keyword IS NULL OR a.name LIKE %:keyword%)")
+    List<Album> AdminfindAll(@Param("keyword") String keyword);
+
+    List<Album> findByArtistId(Long artistId);
 }
