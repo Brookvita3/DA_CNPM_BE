@@ -61,7 +61,7 @@ public class UserService implements IUserService {
                     localizationUtils.getLocalizedMessage(MessageKeys.EMAIL_EXISTED));
         }
 
-        Role role = roleRepository.findByName(Role.LISTENER)
+        Role role = roleRepository.findById(createUserDTO.getRoleId())
                 .orElseThrow(() -> new DataNotFoundException(
                         localizationUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)));
         if (role.getName().equalsIgnoreCase(Role.ADMIN)) {

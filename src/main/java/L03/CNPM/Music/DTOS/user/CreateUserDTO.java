@@ -30,4 +30,7 @@ public class CreateUserDTO {
 
     @JsonProperty("date_of_birth")
     private String dateOfBirth;
+
+    @JsonProperty("role_id")
+    private Long roleId;
 }
