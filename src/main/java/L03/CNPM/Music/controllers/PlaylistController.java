@@ -1,24 +1,19 @@
 package L03.CNPM.Music.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import L03.CNPM.Music.DTOS.album.ChangeStatusAlbumDTO;
 import L03.CNPM.Music.DTOS.playlist.ChangeStatusPlaylistDTO;
+import L03.CNPM.Music.repositories.PlaylistRepository;
 import L03.CNPM.Music.responses.album.AlbumResponse;
 import L03.CNPM.Music.responses.playlist.PlaylistResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
@@ -48,6 +43,7 @@ public class PlaylistController {
     private final IUserService userService;
     private final JwtTokenUtils jwtTokenUtils;
     private final UserRepository userRepository;
+    private final PlaylistRepository playlistRepository;
 
     @GetMapping("/{playlistId}")
     @PreAuthorize("hasRole('ROLE_LISTENER')")
@@ -73,7 +69,7 @@ public class PlaylistController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_LISTENER')")
-    public ResponseEntity<ResponseObject> Create(
+    public ResponseEntity<ResponseObject> uploadAlbum(
             @RequestBody UploadPlaylistDTO createPlaylistDTO,
             @RequestHeader("Authorization") String authorizationHeader) throws Exception {
 
@@ -136,7 +132,7 @@ public class PlaylistController {
             User user = userService.Detail(playlist.getUserId());
 
             return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                    .message("Upload image for album successfully")
+                    .message("Upload image for playlist successfully")
                     .status(HttpStatus.OK)
                     .data(PlaylistDetailResponse.fromPlaylist(playlist, songResponseList, user))
                     .build());
@@ -163,7 +159,7 @@ public class PlaylistController {
             List<SongResponse> songResponseList = playlist.getSongs().stream().map(SongResponse::fromSong).toList();
             return ResponseEntity.ok().body(
                     ResponseObject.builder()
-                            .message("update album successfully")
+                            .message("update playlist successfully")
                             .status(HttpStatus.OK)
                             .data(PlaylistDetailResponse.fromPlaylist(playlist, songResponseList, user))
                             .build());
@@ -179,7 +175,7 @@ public class PlaylistController {
     // admin approve list playlist
     @PatchMapping("/approve")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> approveAlbums(
+    public ResponseEntity<ResponseObject> approvePlaylists(
             @RequestBody ChangeStatusPlaylistDTO changeStatusPlaylistDTO,
             @RequestHeader("Authorization") String authorizationHeader) {
         try {
@@ -193,7 +189,7 @@ public class PlaylistController {
                     .toList();
             return ResponseEntity.ok().body(
                     ResponseObject.builder()
-                            .message("update album successfully")
+                            .message("update playlist successfully")
                             .status(HttpStatus.OK)
                             .data(playlistResponseList)
                             .build());
@@ -211,7 +207,7 @@ public class PlaylistController {
     // admin reject list playlist
     @PatchMapping("/reject")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> rejectPlaylist(
+    public ResponseEntity<ResponseObject> rejectPlaylists(
             @RequestBody ChangeStatusPlaylistDTO changeStatusPlaylistDTO,
             @RequestHeader("Authorization") String authorizationHeader) {
         try {
@@ -225,7 +221,7 @@ public class PlaylistController {
                     .toList();
             return ResponseEntity.ok().body(
                     ResponseObject.builder()
-                            .message("update album successfully")
+                            .message("update playlist successfully")
                             .status(HttpStatus.OK)
                             .data(playlistResponseList)
                             .build());
@@ -238,5 +234,69 @@ public class PlaylistController {
         }
     }
 
+    // For admin get all playlist
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseObject> AdminGetPlaylist(
+            @RequestParam(defaultValue = "", required = false) String keyword) {
+        List<Playlist> playlistList = playlistRepository.AdminfindAll(keyword);
+        List<PlaylistResponse> playlistResponseList = playlistList.stream().map(playlist -> {return PlaylistResponse.fromPlaylist(playlist, null);}).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Get all playlist by admin successfully")
+                .status(HttpStatus.OK)
+                .data(playlistResponseList)
+                .build());
+    }
 
+
+    // For user get all playlist
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+    public ResponseEntity<ResponseObject> UserGetPlaylist(
+            @RequestParam(defaultValue = "", required = false) String keyword) {
+        Page<Playlist> playlists = playlistRepository.findAll(keyword, null);
+        List<PlaylistResponse> playlistResponseList = playlists.getContent().stream()
+                .map(playlist -> {
+                    Optional<User> user = userRepository.findById(playlist.getUserId());
+                    return PlaylistResponse.fromPlaylist(playlist, user.get());}
+                )
+                .toList();
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Get all playlist successfully")
+                .status(HttpStatus.OK)
+                .data(playlistResponseList)
+                .build());
+    }
+
+
+    // listener get playlist
+    @GetMapping("/listener")
+    @PreAuthorize("hasRole('ROLE_LISTENER')")
+    public ResponseEntity<ResponseObject> GetListenerPlaylist(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);
+        String userId = jwtTokenUtils.getUserId(token);
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseObject.builder()
+                    .message("Unauthorized")
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .data(null)
+                    .build());
+        }
+
+        List<PlaylistResponse> playlistResponseList = playlistRepository.findByUserId(Long.valueOf(userId)).stream()
+                .map(playlist -> {
+                    Optional<User> user = userRepository.findById(playlist.getUserId());
+                    return PlaylistResponse.fromPlaylist(playlist, user.get());}
+                ).toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                .message("Get album successfully")
+                .status(HttpStatus.OK)
+                .data(playlistResponseList)
+                .build());
+    }
 }

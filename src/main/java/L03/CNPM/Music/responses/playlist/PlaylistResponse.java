@@ -33,7 +33,7 @@ public class PlaylistResponse {
                 .id(playlist.getId())
                 .name(playlist.getName())
                 .isPublic(playlist.getIsPublic())
-                .user(UserResponse.fromUser(user))
+                .user(user == null ? null : UserResponse.fromUser(user))
                 .coverUrl(playlist.getCoverUrl())
                 .build();
     }

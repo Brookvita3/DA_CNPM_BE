@@ -10,6 +10,8 @@ import L03.CNPM.Music.DTOS.playlist.ChangeStatusPlaylistDTO;
 import L03.CNPM.Music.DTOS.playlist.UploadSongToPlaylistDTO;
 import L03.CNPM.Music.models.*;
 import L03.CNPM.Music.responses.song.SongResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -153,10 +155,10 @@ public class PlaylistService implements IPlaylistService {
                 .collect(Collectors.toMap(Song::getId, song -> song));
 
         for (Map.Entry<Long, Song> entry : addListSongs.entrySet()) {
-            Optional<SongPlaylist> exitedSonginPlaylist = songPlaylistRepository
+            Optional<SongPlaylist> exitedSongInPlaylist = songPlaylistRepository
                     .findBySongIdAndPlaylistId(entry.getKey(), playlistId);
-            if (exitedSonginPlaylist.isPresent())
-                throw new DataNotFoundException("song with ID %s is already in playlist".formatted(playlistId));
+            if (exitedSongInPlaylist.isPresent())
+                throw new DataNotFoundException("song with ID %s is already in playlist".formatted(entry.getKey()));
             SongPlaylist songPlaylist = SongPlaylist.builder()
                  .song(entry.getValue())
                  .playlist(playlist)
@@ -169,10 +171,10 @@ public class PlaylistService implements IPlaylistService {
                 .collect(Collectors.toMap(Song::getId, song -> song));
 
         for (Map.Entry<Long, Song> entry : deleteListSongs.entrySet()) {
-            Optional<SongPlaylist> exitedSonginPlaylist = songPlaylistRepository
+            Optional<SongPlaylist> exitedSongInPlaylist = songPlaylistRepository
                     .findBySongIdAndPlaylistId(entry.getKey(), playlistId);
-            if (exitedSonginPlaylist.isEmpty())
-                throw new DataNotFoundException("song with ID %s is not in playlist yet".formatted(playlistId));
+            if (exitedSongInPlaylist.isEmpty())
+                throw new DataNotFoundException("song with ID %s is not in playlist yet".formatted(entry.getKey()));
             songPlaylistRepository.deleteSongPlaylistBySongIdAndPlaylistId(entry.getKey(), playlistId);
         }
 
@@ -209,6 +211,17 @@ public class PlaylistService implements IPlaylistService {
                 throw new DataNotFoundException("Song with ID %s not found".formatted(songId));
             }
         }
+    }
+
+    @Override
+    public Page<Playlist> findAll(String keyword, Pageable pageable) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+        return playlistRepository.findAll(keyword, pageable);
     }
 
 }
