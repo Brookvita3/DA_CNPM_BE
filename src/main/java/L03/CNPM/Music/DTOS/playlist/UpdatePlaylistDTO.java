@@ -15,9 +15,6 @@ public class UpdatePlaylistDTO {
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("genre_id")
-    private Long genreId;
-
     @JsonProperty("is_public")
     private Boolean isPublic;
 

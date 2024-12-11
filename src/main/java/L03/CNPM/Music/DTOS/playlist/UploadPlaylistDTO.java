@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 @Builder
 @Data
 @NoArgsConstructor
-public class CreatePlayListDTO {
+public class UploadPlaylistDTO {
     @JsonProperty("name")
     @NotBlank(message = "Name cannot be blank")
     private String name;
@@ -25,6 +25,4 @@ public class CreatePlayListDTO {
     @JsonProperty("is_public")
     private Boolean isPublic;
 
-    @JsonProperty("genre_id")
-    private Long genreId;
 }

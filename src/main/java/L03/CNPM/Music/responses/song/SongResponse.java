@@ -23,11 +23,15 @@ public class SongResponse {
     @JsonProperty("status")
     private String status;
 
+    @JsonProperty("public_image_id")
+    private String publicImageId;
+
     public static SongResponse fromSong(Song song) {
         return SongResponse.builder()
                 .id(song.getId().toString())
                 .name(song.getName())
                 .secureUrl(song.getSecureUrl())
+                .publicImageId(song.getPublicImageId())
                 .status(song.getStatus().name())
                 .build();
     }

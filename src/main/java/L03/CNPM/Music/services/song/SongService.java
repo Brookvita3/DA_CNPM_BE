@@ -10,7 +10,6 @@ import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.utils.ImageFileUtils;
 import L03.CNPM.Music.utils.MessageKeys;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +49,6 @@ public class SongService implements ISongService {
                 keyword = null;
             }
         }
-        var x = songRepository.findAll(keyword, pageable);
         return songRepository.findAll(keyword, pageable);
     }
 
@@ -179,6 +177,7 @@ public class SongService implements ISongService {
                 .status(Song.Status.DRAFT)
                 .createdAt(dateUtils.getCurrentDate())
                 .updatedAt(dateUtils.getCurrentDate())
+                .genreId(metadataSongDTO.getGenreId())
                 .build();
 
         return songRepository.save(newSong);

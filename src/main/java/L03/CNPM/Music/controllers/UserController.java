@@ -33,7 +33,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.http.HttpHeaders;
 import java.util.List;
 
 @RestController
@@ -159,13 +158,21 @@ public class UserController {
                                         .message(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH))
                                         .build());
                 }
+                try {
+                        User newUser = userService.Create(createUserDTO);
+                        return ResponseEntity.ok(ResponseObject.builder()
+                                        .status(HttpStatus.CREATED)
+                                        .data(UserDetailResponse.fromUser(newUser))
+                                        .message(MessageKeys.REGISTER_SUCCESSFULLY)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .data(null)
+                                        .message(e.getMessage())
+                                        .build());
+                }
 
-                User newUser = userService.Create(createUserDTO);
-                return ResponseEntity.ok(ResponseObject.builder()
-                                .status(HttpStatus.CREATED)
-                                .data(UserDetailResponse.fromUser(newUser))
-                                .message(MessageKeys.REGISTER_SUCCESSFULLY)
-                                .build());
         }
 
         // ENDPOINT: {{API_PREFIX}}/users/login [POST]

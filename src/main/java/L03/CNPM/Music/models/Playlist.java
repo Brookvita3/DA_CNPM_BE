@@ -1,5 +1,7 @@
 package L03.CNPM.Music.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,16 +17,13 @@ public class Playlist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "genre_id")
-    private Long genreId;
-
-    @Column(name = "cover_url", length = 255)
+    @Column(name = "cover_url")
     private String coverUrl;
 
     @Column(name = "user_id", nullable = false)
@@ -33,20 +32,13 @@ public class Playlist {
     @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "ENUM('DRAFT','PENDING','APPROVED','REJECTED')")
-    private Status status;
-
     @Column(name = "created_at")
     private String createdAt;
 
     @Column(name = "updated_at")
     private String updatedAt;
 
-    public enum Status {
-        DRAFT,
-        PENDING,
-        APPROVED,
-        REJECTED
-    }
+    @ManyToMany
+    @JoinTable(name = "song_playlist", joinColumns = @JoinColumn(name = "playlist_id"), inverseJoinColumns = @JoinColumn(name = "song_id"))
+    private List<Song> songs;
 }

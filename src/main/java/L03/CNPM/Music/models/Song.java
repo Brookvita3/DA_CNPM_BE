@@ -1,5 +1,7 @@
 package L03.CNPM.Music.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,6 +55,12 @@ public class Song {
 
     @Column(name = "public_image_id")
     private String publicImageId;
+
+    @Column(name = "genre_id")
+    private Long genreId;
+
+    @ManyToMany(mappedBy = "songs")
+    private List<Playlist> playlists;
 
     public enum Status {
         DRAFT,

@@ -3,9 +3,7 @@ package L03.CNPM.Music.responses.song;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import L03.CNPM.Music.models.Song;
-import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.User;
-import L03.CNPM.Music.responses.album.AlbumResponse;
 import L03.CNPM.Music.responses.users.ArtistResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

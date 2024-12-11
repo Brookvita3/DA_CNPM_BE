@@ -109,6 +109,8 @@ CREATE TABLE song (
     description TEXT,
     release_date VARCHAR(255),
     created_at VARCHAR(255),
+    genre_id BIGINT,    
+    FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE,
     FOREIGN KEY (artist_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (album_id) REFERENCES album(id) ON DELETE SET NULL
 );

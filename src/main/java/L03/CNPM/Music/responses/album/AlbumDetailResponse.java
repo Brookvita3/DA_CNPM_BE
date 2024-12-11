@@ -1,7 +1,6 @@
 package L03.CNPM.Music.responses.album;
 
 import L03.CNPM.Music.models.Album;
-import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.responses.song.SongResponse;
 import L03.CNPM.Music.responses.users.ArtistResponse;
@@ -9,10 +8,8 @@ import L03.CNPM.Music.responses.users.ArtistResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

@@ -32,6 +32,7 @@ public class Album {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Status status = Status.DRAFT;
 
     @Column(name = "created_at")

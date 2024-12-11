@@ -1,12 +1,14 @@
 package L03.CNPM.Music.responses.playlist;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import L03.CNPM.Music.models.Playlist;
 import L03.CNPM.Music.models.User;
-import L03.CNPM.Music.models.Genre;
+import L03.CNPM.Music.responses.song.SongResponse;
 import L03.CNPM.Music.responses.users.UserResponse;
-import L03.CNPM.Music.responses.genre.GenreResponse;
 import lombok.*;
 
 @Getter
@@ -23,9 +25,6 @@ public class PlaylistDetailResponse {
 
     @JsonProperty("description")
     private String description;
-
-    @JsonProperty("genre")
-    private GenreResponse genre;
 
     @JsonProperty("cover_url")
     private String coverUrl;
@@ -45,18 +44,22 @@ public class PlaylistDetailResponse {
     @JsonProperty("updated_at")
     private String updatedAt;
 
-    public static PlaylistDetailResponse fromPlaylist(Playlist playlist, User user, Genre genre) {
+    @JsonProperty("songs")
+    private List<SongResponse> songs;
+
+    public static PlaylistDetailResponse fromPlaylist(Playlist playlist, List<SongResponse> songs, User user) {
         return PlaylistDetailResponse.builder()
                 .id(playlist.getId())
                 .name(playlist.getName())
                 .description(playlist.getDescription())
-                .genre(GenreResponse.fromGenre(genre))
                 .coverUrl(playlist.getCoverUrl())
                 .isPublic(playlist.getIsPublic())
-                .status(playlist.getStatus().name())
                 .user(UserResponse.fromUser(user))
                 .createdAt(playlist.getCreatedAt())
                 .updatedAt(playlist.getUpdatedAt())
+                .songs(songs == null || songs.isEmpty()
+                        ? Collections.emptyList()
+                        : songs)
                 .build();
     }
 }

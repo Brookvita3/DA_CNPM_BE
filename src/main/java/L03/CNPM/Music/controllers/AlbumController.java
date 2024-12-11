@@ -33,7 +33,6 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/albums")
 @RequiredArgsConstructor
-
 public class AlbumController {
         private final AlbumService albumService;
         private final JwtTokenUtils jwtTokenUtils;

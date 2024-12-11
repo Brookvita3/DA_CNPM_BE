@@ -36,4 +36,7 @@ public class SongMetadataDTO {
 
     @JsonProperty("secure_url")
     private String secureUrl;
+
+    @JsonProperty("genre_id")
+    private Long genreId;
 }

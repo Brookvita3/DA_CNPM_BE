@@ -18,10 +18,8 @@ import L03.CNPM.Music.responses.song.SongListResponse;
 import L03.CNPM.Music.responses.song.SongResponse;
 import jakarta.validation.Valid;
 
-import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.SongRepository;
-import L03.CNPM.Music.services.album.IAlbumService;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +43,6 @@ public class SongController {
         private final JwtTokenUtils jwtTokenUtils;
         private final DateUtils dateUtils;
         private final IUserService userService;
-        private final IAlbumService albumService;
         private final SongRepository songRepository;
 
         // For admin get all song
@@ -435,8 +432,6 @@ public class SongController {
                         Song song = songService.updateSong(id, userId);
 
                         User artist = userService.Detail(song.getArtistId());
-
-                        Album album = albumService.Detail(song.getAlbumId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Update song successfully")
