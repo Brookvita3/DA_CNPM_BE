@@ -48,6 +48,9 @@ public class SongDetailResponse {
     @JsonProperty("public_image_id")
     private String publicImageId;
 
+    @JsonProperty("number_of_report")
+    private Integer numberOfReport;
+
     public static SongDetailResponse fromSong(Song song, User artist) {
         if (artist == null) {
             artist = new User();
@@ -64,6 +67,7 @@ public class SongDetailResponse {
                 .createdAt(song.getCreatedAt())
                 .updatedAt(song.getUpdatedAt())
                 .publicImageId(song.getPublicImageId())
+                .numberOfReport(song.getNumberOfReport())
                 .artist(ArtistResponse.fromUser(artist))
                 .build();
     }

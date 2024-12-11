@@ -62,6 +62,10 @@ public class Song {
     @ManyToMany(mappedBy = "songs")
     private List<Playlist> playlists;
 
+    @Column(name = "number_of_report")
+    @Builder.Default
+    private Integer numberOfReport = 0;
+
     public enum Status {
         DRAFT,
         PENDING,

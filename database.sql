@@ -115,6 +115,18 @@ CREATE TABLE song (
     FOREIGN KEY (album_id) REFERENCES album(id) ON DELETE SET NULL
 );
 
+CREATE TABLE "report" (
+   "id" bigint NOT NULL AUTO_INCREMENT,
+   "song_id" bigint DEFAULT NULL,
+   "user_id" bigint DEFAULT NULL,
+   "reason" text,
+   PRIMARY KEY ("id"),
+   KEY "report_frk1_idx" ("user_id"),
+   KEY "report_frk2_idx" ("song_id"),
+   CONSTRAINT "report_frk1" FOREIGN KEY ("user_id") REFERENCES "users" ("id"),
+   CONSTRAINT "report_frk2" FOREIGN KEY ("song_id") REFERENCES "song" ("id")
+);
+
 
 -- CREATE TABLE report (
 --     report_id BIGINT AUTO_INCREMENT PRIMARY KEY,
