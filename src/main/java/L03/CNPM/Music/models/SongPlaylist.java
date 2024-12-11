@@ -10,24 +10,28 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "song_playlist")
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@Table(name = "song_playlist")
 public class SongPlaylist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JoinColumn(name = "id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "song_id")
+    @JoinColumn(name = "song_id", referencedColumnName = "id")
     private Song song;
 
     @ManyToOne
-    @JoinColumn(name = "playlist_id")
+    @JoinColumn(name = "playlist_id", referencedColumnName = "id")
     private Playlist playlist;
 }

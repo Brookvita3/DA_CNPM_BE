@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface SongPlaylistRepository extends JpaRepository<SongPlaylist, Long> {
     Optional<SongPlaylist> findBySongIdAndPlaylistId(Long songId, Long playlistId);
+
+    void deleteSongPlaylistBySongIdAndPlaylistId(Long songId, Long playlistId);
 }

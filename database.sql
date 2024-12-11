@@ -81,9 +81,9 @@ CREATE TABLE playlist (
 );
 
 CREATE TABLE song_playlist (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     playlist_id BIGINT NOT NULL,
     song_id BIGINT NOT NULL,
-    PRIMARY KEY (playlist_id, song_id),
     FOREIGN KEY (playlist_id) REFERENCES playlist(id) ON DELETE CASCADE,
     FOREIGN KEY (song_id) REFERENCES song(id) ON DELETE CASCADE
 );

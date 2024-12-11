@@ -18,9 +18,12 @@ public class UpdatePlaylistDTO {
     @JsonProperty("is_public")
     private Boolean isPublic;
 
-    @JsonProperty("add_song_ids")
-    private List<Long> addSongIds;
+    @JsonProperty("list_add")
+    private List<Long> addList;
 
-    @JsonProperty("remove_song_ids")
-    private List<Long> removeSongIds;
+    @JsonProperty("list_delete")
+    private List<Long> deleteList;
+
+    @JsonProperty("name")
+    private String name;
 }

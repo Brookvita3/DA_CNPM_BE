@@ -38,7 +38,19 @@ public class Playlist {
     @Column(name = "updated_at")
     private String updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Status status = Status.DRAFT;
+
     @ManyToMany
     @JoinTable(name = "song_playlist", joinColumns = @JoinColumn(name = "playlist_id"), inverseJoinColumns = @JoinColumn(name = "song_id"))
     private List<Song> songs;
+
+    public enum Status {
+        DRAFT,
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
 }

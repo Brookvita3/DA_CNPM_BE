@@ -22,6 +22,9 @@ public class PlaylistResponse {
     @JsonProperty("is_public")
     private Boolean isPublic;
 
+    @JsonProperty("cover_url")
+    private String coverUrl;
+
     @JsonProperty("user")
     private UserResponse user;
 
@@ -31,6 +34,7 @@ public class PlaylistResponse {
                 .name(playlist.getName())
                 .isPublic(playlist.getIsPublic())
                 .user(UserResponse.fromUser(user))
+                .coverUrl(playlist.getCoverUrl())
                 .build();
     }
 }
