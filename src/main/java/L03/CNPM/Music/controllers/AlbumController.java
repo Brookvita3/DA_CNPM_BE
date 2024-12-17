@@ -6,6 +6,7 @@ import L03.CNPM.Music.DTOS.album.UploadSongToAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadAlbumDTO;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.models.Album;
+import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.repositories.AlbumRepository;
@@ -21,6 +22,8 @@ import L03.CNPM.Music.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,12 +51,26 @@ public class AlbumController {
         public ResponseEntity<ResponseObject> AdminGetAlbum(
                         @RequestParam(defaultValue = "", required = false) String keyword) {
                 List<Album> albumList = albumRepository.AdminfindAll(keyword);
-                List<AlbumResponse> albumResponseList = albumList.stream().map(AlbumResponse::fromAlbum).toList();
-                return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                .message("Get all album buy admin successfully")
-                                .status(HttpStatus.OK)
-                                .data(albumResponseList)
-                                .build());
+                try {
+                        List<AlbumDetailResponse> albumResponseList = albumList.stream().map((album) -> {
+                                List<SongResponse> songs = songRepository.findAllByAlbumId(album.getId()).stream()
+                                                .map(SongResponse::fromSong).toList();
+                                User artist = userRepository.findById(album.getArtistId()).orElse(null);
+                                return AlbumDetailResponse.fromAlbum(album, songs, artist);
+                        }).toList();
+                        return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                        .message("Get all album by admin successfully")
+                                        .status(HttpStatus.OK)
+                                        .data(albumResponseList)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+                                        .message(e.getMessage())
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .data(null)
+                                        .build());
+
+                }
         }
 
         // For user get all album
@@ -264,4 +281,23 @@ public class AlbumController {
                                 .data(albumResponseList)
                                 .build());
         }
+
+        // get songs by search
+        @GetMapping("/search")
+        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
+        public ResponseEntity<ResponseObject> searchAlbum(
+                        @RequestParam(defaultValue = "", required = true) String name,
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+                PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+                Page<Album> albums = albumService.searchAlbum(name, pageRequest);
+                List<AlbumResponse> albumResponseList = albums.getContent().stream().map(AlbumResponse::fromAlbum)
+                                .toList();
+                return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                .message("Get list album by search successfully")
+                                .status(HttpStatus.OK)
+                                .data(albumResponseList)
+                                .build());
+        }
+
 }

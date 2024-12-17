@@ -39,4 +39,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%)")
     Page<Song> AdminfindAll(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT s FROM Song s WHERE (s.name LIKE %:keyword%) AND s.status = 'APPROVED'")
+    Page<Song> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

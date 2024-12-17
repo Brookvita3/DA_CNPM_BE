@@ -33,4 +33,6 @@ public interface ISongService {
     Song updateSong(String id, String userId) throws Exception;
 
     Song findById(Long id) throws Exception;
+
+    Page<Song> searchSong(String keyword, Pageable pageable);
 }

@@ -28,4 +28,6 @@ public interface IAlbumService {
     List<Album> rejectAlbum(ChangeStatusAlbumDTO changeStatusAlbumDTO) throws Exception;
 
     Album UploadImageAlbum(MultipartFile file, Long albumId) throws Exception;
+
+    Page<Album> searchAlbum(String keyword, Pageable pageable);
 }

@@ -238,4 +238,15 @@ public class SongService implements ISongService {
         return song.get();
     }
 
+    @Override
+    public Page<Song> searchSong(String keyword, Pageable pageable) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+        return songRepository.findByNameContainingIgnoreCase(keyword, pageable);
+    }
+
 }

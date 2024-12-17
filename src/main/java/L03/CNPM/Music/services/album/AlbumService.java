@@ -8,6 +8,7 @@ import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Genre;
+import L03.CNPM.Music.models.Playlist;
 import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.GenreRepository;
@@ -46,7 +47,9 @@ public class AlbumService implements IAlbumService {
     public Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws DataNotFoundException {
         List<Long> genre_id = (uploadAlbumDTO.getGenre_Id()).stream().map(Long::valueOf).toList();
         List<Genre> genreList = genreRepository.findGenresByIdIn(genre_id);
-        if (albumRepository.existsByName(uploadAlbumDTO.getName())) { throw new  DataNotFoundException("Album already exist");}
+        if (albumRepository.existsByName(uploadAlbumDTO.getName())) {
+            throw new DataNotFoundException("Album already exist");
+        }
         Album album = Album.builder()
                 .name(uploadAlbumDTO.getName())
                 .description(uploadAlbumDTO.getDescription())
@@ -66,7 +69,8 @@ public class AlbumService implements IAlbumService {
     public List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId)
             throws DataNotFoundException {
 
-        Album album = albumRepository.findById(albumId).orElseThrow(() -> new DataNotFoundException("Album with ID %s no found".formatted(albumId)));
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new DataNotFoundException("Album with ID %s no found".formatted(albumId)));
         album.setStatus(Album.Status.PENDING);
         albumRepository.save(album);
 
@@ -81,7 +85,6 @@ public class AlbumService implements IAlbumService {
             song.setAlbumId(albumId);
             songRepository.save(song);
         }
-
 
         return songs.stream().map(SongResponse::fromSong).toList();
     }
@@ -179,7 +182,8 @@ public class AlbumService implements IAlbumService {
     }
 
     @Override
-    public Album UploadImageAlbum(MultipartFile file, Long albumId) throws DataNotFoundException, UploadCloudinaryException {
+    public Album UploadImageAlbum(MultipartFile file, Long albumId)
+            throws DataNotFoundException, UploadCloudinaryException {
         Optional<Album> optionalAlbum = albumRepository.findById(albumId);
         if (optionalAlbum.isEmpty()) {
             throw new DataNotFoundException("album not found.");
@@ -205,9 +209,20 @@ public class AlbumService implements IAlbumService {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
             existingAlbum.setCoverUrl((String) uploadResult.get("url"));
             albumRepository.save(existingAlbum);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UploadCloudinaryException(MessageKeys.CLOUDINARY_UPLOAD_FAIL);
         }
         return existingAlbum;
+    }
+
+    @Override
+    public Page<Album> searchAlbum(String keyword, Pageable pageable) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+        return albumRepository.findByNameContainingIgnoreCase(keyword, pageable);
     }
 }

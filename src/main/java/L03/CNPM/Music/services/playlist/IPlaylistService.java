@@ -6,6 +6,7 @@ import L03.CNPM.Music.DTOS.playlist.UploadPlaylistDTO;
 import L03.CNPM.Music.DTOS.playlist.UploadSongToPlaylistDTO;
 import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Playlist;
+import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.responses.song.SongResponse;
 
 import java.util.List;
@@ -32,4 +33,6 @@ public interface IPlaylistService {
     List<Playlist> rejectPlaylist(ChangeStatusPlaylistDTO changeStatusPlaylistDTO) throws Exception;
 
     Page<Playlist> findAll(String keyword, Pageable pageable);
+
+    Page<Playlist> searchPlaylist(String keyword, Pageable pageable);
 }

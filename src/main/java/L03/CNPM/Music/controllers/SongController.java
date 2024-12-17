@@ -581,4 +581,21 @@ public class SongController {
                 }
         }
 
+        // get songs by search
+        @GetMapping("/search")
+        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
+        public ResponseEntity<ResponseObject> searchSong(
+                        @RequestParam(defaultValue = "", required = true) String name,
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+                PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+                Page<Song> songs = songService.searchSong(name, pageRequest);
+                List<SongResponse> songResponseList = songs.getContent().stream().map(SongResponse::fromSong).toList();
+                return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                .message("Get list song by search successfully")
+                                .status(HttpStatus.OK)
+                                .data(songResponseList)
+                                .build());
+        }
+
 }

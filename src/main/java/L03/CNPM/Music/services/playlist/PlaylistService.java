@@ -160,9 +160,9 @@ public class PlaylistService implements IPlaylistService {
             if (exitedSongInPlaylist.isPresent())
                 throw new DataNotFoundException("song with ID %s is already in playlist".formatted(entry.getKey()));
             SongPlaylist songPlaylist = SongPlaylist.builder()
-                 .song(entry.getValue())
-                 .playlist(playlist)
-                 .build();
+                    .song(entry.getValue())
+                    .playlist(playlist)
+                    .build();
             songPlaylistRepository.save(songPlaylist);
         }
 
@@ -183,7 +183,8 @@ public class PlaylistService implements IPlaylistService {
     }
 
     @Override
-    public List<Playlist> approvePlaylist(ChangeStatusPlaylistDTO changeStatusPlaylistDTO) throws DataNotFoundException {
+    public List<Playlist> approvePlaylist(ChangeStatusPlaylistDTO changeStatusPlaylistDTO)
+            throws DataNotFoundException {
         List<Playlist> playlistList = playlistRepository.findAllById(changeStatusPlaylistDTO.getPlaylist_id());
         for (Playlist playlist : playlistList) {
             playlist.setStatus(Playlist.Status.APPROVED);
@@ -201,8 +202,6 @@ public class PlaylistService implements IPlaylistService {
         }
         return playlistList;
     }
-
-
 
     public void verifyListSongId(List<Long> songIdList) throws DataNotFoundException {
         for (Long songId : songIdList) {
@@ -224,4 +223,14 @@ public class PlaylistService implements IPlaylistService {
         return playlistRepository.findAll(keyword, pageable);
     }
 
+    @Override
+    public Page<Playlist> searchPlaylist(String keyword, Pageable pageable) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+        return playlistRepository.findByNameContainingIgnoreCase(keyword, pageable);
+    }
 }

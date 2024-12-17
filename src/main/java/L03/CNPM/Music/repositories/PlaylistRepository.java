@@ -2,6 +2,8 @@ package L03.CNPM.Music.repositories;
 
 import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Playlist;
+import L03.CNPM.Music.models.Song;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,5 +27,8 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
     @Query("SELECT p FROM Playlist p WHERE (:keyword IS NULL OR p.name LIKE %:keyword%) AND p.isPublic = true AND p.status = 'APPROVED'")
     Page<Playlist> findAll(@Param("keyword") String keyword, Pageable pageable);
 
-    List<Playlist> findByUserId (Long userId);
+    List<Playlist> findByUserId(Long userId);
+
+    @Query("SELECT s FROM Playlist s WHERE (s.name LIKE %:keyword%) AND s.status = 'APPROVED'")
+    Page<Playlist> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

@@ -9,6 +9,8 @@ import L03.CNPM.Music.responses.playlist.PlaylistResponse;
 import L03.CNPM.Music.responses.song.SongResponse;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,7 @@ import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.models.Playlist;
+import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.playlist.PlaylistDetailResponse;
 import L03.CNPM.Music.services.playlist.IPlaylistService;
@@ -303,4 +306,26 @@ public class PlaylistController {
                                 .data(playlistResponseList)
                                 .build());
         }
+
+        // get songs by search
+        @GetMapping("/search")
+        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER') or hasRole('ROLE_ADMIN')")
+        public ResponseEntity<ResponseObject> searchPlaylist(
+                        @RequestParam(defaultValue = "", required = true) String name,
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+                PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+                Page<Playlist> playlists = playlistService.searchPlaylist(name, pageRequest);
+                List<PlaylistResponse> playlistDetailResponseList = playlists.getContent().stream()
+                                .map((playlist) -> {
+                                        User user = userRepository.findById(playlist.getId()).orElse(null);
+                                        return PlaylistResponse.fromPlaylist(playlist, user);
+                                }).toList();
+                return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
+                                .message("Get list playlist by search successfully")
+                                .status(HttpStatus.OK)
+                                .data(playlistDetailResponseList)
+                                .build());
+        }
+
 }

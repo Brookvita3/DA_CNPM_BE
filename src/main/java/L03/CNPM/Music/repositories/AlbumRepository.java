@@ -31,4 +31,7 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     List<Album> AdminfindAll(@Param("keyword") String keyword);
 
     List<Album> findByArtistId(Long artistId);
+
+    @Query("SELECT s FROM Album s WHERE (s.name LIKE %:keyword%) AND s.status = 'APPROVED'")
+    Page<Album> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }
