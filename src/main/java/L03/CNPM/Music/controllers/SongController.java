@@ -561,7 +561,7 @@ public class SongController {
 
         // For listener want to get song by album
         @GetMapping("/albums/{albumId}")
-        @PreAuthorize("hasRole('ROLE_LISTENER')")
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> ListenerFindSongByAlbumId(@PathVariable Long albumId) {
                 try {
                         List<SongResponse> songResponseList = songRepository.UserfindAllByAlbumId(albumId, null)
