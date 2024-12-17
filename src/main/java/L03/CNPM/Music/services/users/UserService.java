@@ -238,10 +238,27 @@ public class UserService implements IUserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException(
                         MessageKeys.USER_DOES_NOT_EXISTS));
-        if (updateUserDTO.getUsername() != null)
+        // if (updateUserDTO.getUsername() != null)
+        // existingUser.setUsername(updateUserDTO.getUsername());
+        // if (updateUserDTO.getEmail() != null)
+        // existingUser.setEmail(updateUserDTO.getEmail());
+
+        if (updateUserDTO.getUsername() != null
+                && !updateUserDTO.getUsername().equals(existingUser.getUsername())) {
+            if (userRepository.existsByUsername(updateUserDTO.getUsername())) {
+                throw new Exception("Username already exists");
+            }
             existingUser.setUsername(updateUserDTO.getUsername());
-        if (updateUserDTO.getEmail() != null)
+        }
+
+        // Check for duplicate email
+        if (updateUserDTO.getEmail() != null
+                && !updateUserDTO.getEmail().equals(existingUser.getEmail())) {
+            if (userRepository.existsByEmail(updateUserDTO.getEmail())) {
+                throw new Exception("Email already exists");
+            }
             existingUser.setEmail(updateUserDTO.getEmail());
+        }
         if (updateUserDTO.getPassword() != null) {
             String password = updateUserDTO.getPassword();
             String encodedPassword = passwordEncoder.encode(password);

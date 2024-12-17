@@ -440,7 +440,7 @@ public class UserController {
                  */
         }
 
-        @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER') or hasRole('ROLE_LISTENER')")
+        @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_ARTIST') or hasRole('ROLE_LISTENER')")
         @PatchMapping("/info/update")
         public ResponseEntity<ResponseObject> updateInfo(
                         @RequestHeader("Authorization") String authorizationHeader,
