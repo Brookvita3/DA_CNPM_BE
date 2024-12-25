@@ -8,7 +8,6 @@ import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Genre;
-import L03.CNPM.Music.models.Playlist;
 import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.GenreRepository;
@@ -142,7 +141,7 @@ public class AlbumService implements IAlbumService {
                 songRepository.save(song);
             }
         }
-        return album;
+        return albumRepository.save(album);
 
     }
 

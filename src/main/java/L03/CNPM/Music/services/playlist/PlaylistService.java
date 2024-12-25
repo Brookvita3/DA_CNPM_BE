@@ -178,7 +178,7 @@ public class PlaylistService implements IPlaylistService {
             songPlaylistRepository.deleteSongPlaylistBySongIdAndPlaylistId(entry.getKey(), playlistId);
         }
 
-        return playlist;
+        return playlistRepository.save(playlist);
 
     }
 

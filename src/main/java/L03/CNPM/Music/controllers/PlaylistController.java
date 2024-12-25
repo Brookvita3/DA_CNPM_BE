@@ -26,7 +26,6 @@ import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.models.Playlist;
-import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.playlist.PlaylistDetailResponse;
 import L03.CNPM.Music.services.playlist.IPlaylistService;
@@ -147,7 +146,7 @@ public class PlaylistController {
         }
 
         @PatchMapping("/{playlistId}/update")
-        @PreAuthorize("hasRole('ROLE_LISTENER')")
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> updatePlaylist(
                         @RequestBody UpdatePlaylistDTO updatePlaylistDTO,
                         @PathVariable Long playlistId,

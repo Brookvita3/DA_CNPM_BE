@@ -29,6 +29,6 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
 
     List<Playlist> findByUserId(Long userId);
 
-    @Query("SELECT s FROM Playlist s WHERE (s.name LIKE %:keyword%) AND s.status = 'APPROVED'")
+    @Query("SELECT p FROM Playlist p WHERE (p.name LIKE %:keyword%) AND p.status = 'APPROVED' AND p.isPublic = true")
     Page<Playlist> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }
