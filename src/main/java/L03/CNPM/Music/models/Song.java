@@ -72,4 +72,8 @@ public class Song {
         APPROVED,
         REJECTED
     }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id", insertable = false, updatable = false)
+    private Album album;
 }

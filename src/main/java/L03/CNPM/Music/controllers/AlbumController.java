@@ -57,9 +57,9 @@ public class AlbumController {
                 Page<Album> albumList = albumRepository.AdminfindAll(keyword, pageRequest);
                 try {
                         List<AlbumDetailResponse> albumResponseList = albumList.getContent().stream().map((album) -> {
-                                List<SongResponse> songs = songRepository.findAllByAlbumId(album.getId()).stream()
-                                                .map(SongResponse::fromSong).toList();
-                                User artist = userRepository.findById(album.getArtistId()).orElse(null);
+                                List<SongResponse> songs = album.getSongs().stream().map(SongResponse::fromSong)
+                                                .toList();
+                                User artist = album.getArtist();
                                 return AlbumDetailResponse.fromAlbum(album, songs, artist);
                         }).toList();
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()

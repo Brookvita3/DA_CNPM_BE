@@ -55,4 +55,11 @@ public class Album {
         APPROVED,
         REJECTED
     }
+
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Song> songs;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "artist_id", insertable = false, updatable = false)
+    private User artist;
 }

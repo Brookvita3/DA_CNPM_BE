@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,6 +28,7 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 
     boolean existsByName(String name);
 
+    @EntityGraph(attributePaths = { "songs", "artist" })
     @Query("SELECT a FROM Album a WHERE (:keyword IS NULL OR a.name LIKE %:keyword%)")
     Page<Album> AdminfindAll(@Param("keyword") String keyword, Pageable pageable);
 
