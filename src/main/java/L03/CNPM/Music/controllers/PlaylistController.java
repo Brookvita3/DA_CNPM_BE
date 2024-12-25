@@ -26,6 +26,7 @@ import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.models.Playlist;
+import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.playlist.PlaylistDetailResponse;
 import L03.CNPM.Music.services.playlist.IPlaylistService;
@@ -46,7 +47,9 @@ public class PlaylistController {
         public ResponseEntity<ResponseObject> Detail(@PathVariable Long playlistId) throws Exception {
                 try {
                         Playlist playlist = playlistService.Detail(playlistId);
-                        List<SongResponse> songResponseList = playlist.getSongs().stream().map(SongResponse::fromSong)
+                        List<SongResponse> songResponseList = playlist.getSongs().stream()
+                                        .filter(song -> song.getStatus() == Song.Status.APPROVED)
+                                        .map(SongResponse::fromSong)
                                         .toList();
                         User user = userService.Detail(playlist.getUserId());
 
