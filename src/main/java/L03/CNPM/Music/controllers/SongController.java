@@ -25,6 +25,7 @@ import L03.CNPM.Music.repositories.SongRepository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -122,7 +123,9 @@ public class SongController {
                                 Sort.by("id").ascending());
 
                 Page<SongResponse> songPage = songService.findAll(keyword, pageRequest)
-                                .map(SongResponse::fromSong);
+                                .map((song) -> {
+                                        return SongResponse.fromSong(song, song.getArtist().getUsername());
+                                });
 
                 int totalPages = songPage.getTotalPages();
 

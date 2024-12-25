@@ -26,6 +26,9 @@ public class SongResponse {
     @JsonProperty("public_image_id")
     private String publicImageId;
 
+    @JsonProperty("artist_name")
+    private String artistName;
+
     public static SongResponse fromSong(Song song) {
         return SongResponse.builder()
                 .id(song.getId().toString())
@@ -33,6 +36,18 @@ public class SongResponse {
                 .secureUrl(song.getSecureUrl())
                 .publicImageId(song.getPublicImageId())
                 .status(song.getStatus().name())
+                .build();
+    }
+
+    // Overloaded method for creating SongResponse with an additional artist name
+    public static SongResponse fromSong(Song song, String artistName) {
+        return SongResponse.builder()
+                .id(song.getId().toString())
+                .name(song.getName())
+                .secureUrl(song.getSecureUrl())
+                .publicImageId(song.getPublicImageId())
+                .status(song.getStatus().name())
+                .artistName(artistName) // Set the artist name here
                 .build();
     }
 }
