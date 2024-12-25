@@ -12,6 +12,7 @@ import L03.CNPM.Music.DTOS.song.SongMetadataDTO;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.responses.ResponseObject;
+import L03.CNPM.Music.responses.album.AlbumDetailResponse;
 import L03.CNPM.Music.responses.song.CloudinaryResponse;
 import L03.CNPM.Music.responses.song.SongDetailResponse;
 import L03.CNPM.Music.responses.song.SongListResponse;
@@ -19,6 +20,7 @@ import L03.CNPM.Music.responses.song.SongResponse;
 import jakarta.validation.Valid;
 
 import L03.CNPM.Music.models.User;
+import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.SongRepository;
 
 import java.util.List;
@@ -44,6 +46,7 @@ public class SongController {
         private final DateUtils dateUtils;
         private final IUserService userService;
         private final SongRepository songRepository;
+        private final AlbumRepository albumRepository;
 
         // For admin get all song
         @GetMapping("/admin/all")
@@ -567,10 +570,12 @@ public class SongController {
                         List<SongResponse> songResponseList = songRepository.UserfindAllByAlbumId(albumId, null)
                                         .stream()
                                         .map(SongResponse::fromSong).toList();
+                        AlbumDetailResponse album = AlbumDetailResponse
+                                        .fromAlbum(albumRepository.findById(albumId).get(), songResponseList, null);
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
-                                        .message("Get song detail successfully")
+                                        .message("Get song from album successfully")
                                         .status(HttpStatus.OK)
-                                        .data(songResponseList)
+                                        .data(album)
                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()

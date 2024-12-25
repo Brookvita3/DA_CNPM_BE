@@ -53,7 +53,7 @@ public class AlbumDetailResponse {
                 .releaseDate(album.getReleaseDate())
                 .status(album.getStatus())
                 .createdAt(album.getCreatedAt())
-                .artist(ArtistResponse.fromUser(artist))
+                .artist(artist == null ? null : ArtistResponse.fromUser(artist))
                 .songs(songs == null || songs.isEmpty()
                         ? Collections.emptyList()
                         : songs)

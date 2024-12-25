@@ -6,7 +6,6 @@ import L03.CNPM.Music.DTOS.album.UploadSongToAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadAlbumDTO;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.models.Album;
-import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.repositories.AlbumRepository;
@@ -16,6 +15,8 @@ import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.album.AlbumDetailResponse;
 import L03.CNPM.Music.responses.album.AlbumResponse;
 import L03.CNPM.Music.responses.song.SongResponse;
+import L03.CNPM.Music.responses.users.UserListResponse;
+import L03.CNPM.Music.responses.users.UserResponse;
 import L03.CNPM.Music.services.album.AlbumService;
 import L03.CNPM.Music.services.users.UserService;
 import L03.CNPM.Music.utils.TokenUtils;
@@ -49,10 +50,13 @@ public class AlbumController {
         @GetMapping("/admin/all")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> AdminGetAlbum(
-                        @RequestParam(defaultValue = "", required = false) String keyword) {
-                List<Album> albumList = albumRepository.AdminfindAll(keyword);
+                        @RequestParam(defaultValue = "", required = false) String keyword,
+                        @RequestParam(defaultValue = "1") int page,
+                        @RequestParam(defaultValue = "10") int limit) {
+                PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by("id").ascending());
+                Page<Album> albumList = albumRepository.AdminfindAll(keyword, pageRequest);
                 try {
-                        List<AlbumDetailResponse> albumResponseList = albumList.stream().map((album) -> {
+                        List<AlbumDetailResponse> albumResponseList = albumList.getContent().stream().map((album) -> {
                                 List<SongResponse> songs = songRepository.findAllByAlbumId(album.getId()).stream()
                                                 .map(SongResponse::fromSong).toList();
                                 User artist = userRepository.findById(album.getArtistId()).orElse(null);
@@ -71,6 +75,14 @@ public class AlbumController {
                                         .build());
 
                 }
+                // List<UserResponse> userResponses = userPage.getContent();
+                // UserListResponse userListResponse = UserListResponse
+                // .builder()
+                // .users(userResponses)
+                // .totalPages(totalPages)
+                // .currentPage(currentPage)
+                // .itemsPerPage(itemsPerPage)
+                // .build();
         }
 
         // For user get all album
