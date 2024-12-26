@@ -87,7 +87,7 @@ public class AlbumController {
 
         // For user get all album
         @GetMapping("")
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        // @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UserGetAlbum(
                         @RequestParam(defaultValue = "", required = false) String keyword) {
                 Page<Album> albumList = albumRepository.findAll(keyword, null);

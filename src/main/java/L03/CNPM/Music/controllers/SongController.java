@@ -109,7 +109,7 @@ public class SongController {
          * }
          */
         @GetMapping("/user")
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        // @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UserGetSong(
                         @RequestParam(defaultValue = "", required = false) String keyword,
                         @RequestParam(defaultValue = "1") int page,

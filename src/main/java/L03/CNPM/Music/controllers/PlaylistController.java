@@ -260,7 +260,7 @@ public class PlaylistController {
 
         // For user get all playlist
         @GetMapping("")
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        //@PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UserGetPlaylist(
                         @RequestParam(defaultValue = "", required = false) String keyword) {
                 Page<Playlist> playlists = playlistRepository.findAll(keyword, null);
