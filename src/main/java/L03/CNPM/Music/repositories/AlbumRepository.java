@@ -29,7 +29,7 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     boolean existsByName(String name);
 
     @EntityGraph(attributePaths = { "songs", "artist" })
-    @Query("SELECT a FROM Album a WHERE (:keyword IS NULL OR a.name LIKE %:keyword%)")
+    @Query("SELECT a FROM Album a WHERE (:keyword IS NULL OR a.name LIKE %:keyword%) AND a.status != 'DRAFT'")
     Page<Album> AdminfindAll(@Param("keyword") String keyword, Pageable pageable);
 
     List<Album> findByArtistId(Long artistId);

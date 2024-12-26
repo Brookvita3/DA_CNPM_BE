@@ -91,6 +91,7 @@ public class PlaylistService implements IPlaylistService {
             songs.add(song);
         }
         playlist.setSongs(songs);
+        playlist.setStatus(Playlist.Status.PENDING);
         playlistRepository.save(playlist);
         return songs.stream().map(SongResponse::fromSong).toList();
     }

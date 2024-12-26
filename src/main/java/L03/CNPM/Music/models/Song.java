@@ -37,7 +37,7 @@ public class Song {
     private String publicId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT'")
+    @Column(nullable = false)
     @Builder.Default
     private Status status = Status.DRAFT;
 

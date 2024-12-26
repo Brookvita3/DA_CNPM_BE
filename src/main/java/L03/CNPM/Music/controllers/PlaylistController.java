@@ -69,7 +69,7 @@ public class PlaylistController {
 
         @PostMapping("")
         @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
-        public ResponseEntity<ResponseObject> uploadAlbum(
+        public ResponseEntity<ResponseObject> uploadPlaylist(
                         @RequestBody UploadPlaylistDTO createPlaylistDTO,
                         @RequestHeader("Authorization") String authorizationHeader) throws Exception {
 

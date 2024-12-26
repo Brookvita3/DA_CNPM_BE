@@ -21,7 +21,7 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
 
     Optional<Playlist> findByName(String name);
 
-    @Query("SELECT p FROM Playlist p WHERE (:keyword IS NULL OR p.name LIKE %:keyword%)")
+    @Query("SELECT p FROM Playlist p WHERE (:keyword IS NULL OR p.name LIKE %:keyword%) AND p.status != 'DRAFT'")
     List<Playlist> AdminfindAll(@Param("keyword") String keyword);
 
     @Query("SELECT p FROM Playlist p WHERE (:keyword IS NULL OR p.name LIKE %:keyword%) AND p.isPublic = true AND p.status = 'APPROVED'")
