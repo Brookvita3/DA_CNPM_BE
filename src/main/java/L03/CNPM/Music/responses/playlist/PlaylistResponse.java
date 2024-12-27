@@ -28,6 +28,9 @@ public class PlaylistResponse {
     @JsonProperty("user")
     private UserResponse user;
 
+    @JsonProperty("status")
+    private Playlist.Status status;
+
     public static PlaylistResponse fromPlaylist(Playlist playlist, User user) {
         return PlaylistResponse.builder()
                 .id(playlist.getId())
@@ -35,6 +38,7 @@ public class PlaylistResponse {
                 .isPublic(playlist.getIsPublic())
                 .user(user == null ? null : UserResponse.fromUser(user))
                 .coverUrl(playlist.getCoverUrl())
+                .status(playlist.getStatus())
                 .build();
     }
 }
