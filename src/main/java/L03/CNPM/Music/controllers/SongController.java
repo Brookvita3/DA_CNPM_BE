@@ -65,7 +65,7 @@ public class SongController {
                                 Sort.by("id").ascending());
 
                 Page<SongResponse> songPage = songRepository.AdminfindAll(keyword, pageRequest)
-                                .map(SongResponse::fromSong);
+                                .map(song -> SongResponse.fromSong(song, song.getArtist().getUsername()));
 
                 int totalPages = songPage.getTotalPages();
 
