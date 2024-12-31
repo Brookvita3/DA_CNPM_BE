@@ -74,27 +74,30 @@ public class PlaylistService implements IPlaylistService {
         return playlistRepository.save(playlist);
     }
 
-    @Override
-    public List<SongResponse> uploadSongToPlaylist(UploadSongToPlaylistDTO uploadSongToPlaylistDTO, Long playlistId)
-            throws DataNotFoundException {
+    // @Override
+    // public List<SongResponse> uploadSongToPlaylist(UploadSongToPlaylistDTO
+    // uploadSongToPlaylistDTO, Long playlistId)
+    // throws DataNotFoundException {
 
-        Playlist playlist = playlistRepository.findById(playlistId)
-                .orElseThrow(() -> new DataNotFoundException("Playlist with ID %s no found".formatted(playlistId)));
+    // Playlist playlist = playlistRepository.findById(playlistId)
+    // .orElseThrow(() -> new DataNotFoundException("Playlist with ID %s no
+    // found".formatted(playlistId)));
 
-        List<Song> songs = new ArrayList<>();
-        for (Long songId : uploadSongToPlaylistDTO.getSongIds()) {
-            Optional<Song> existedSong = songRepository.findById(songId);
-            if (existedSong.isEmpty()) {
-                throw new DataNotFoundException("Song with ID %s not found".formatted(songId));
-            }
-            Song song = existedSong.get();
-            songs.add(song);
-        }
-        playlist.setSongs(songs);
-        playlist.setStatus(Playlist.Status.PENDING);
-        playlistRepository.save(playlist);
-        return songs.stream().map(SongResponse::fromSong).toList();
-    }
+    // List<Song> songs = new ArrayList<>();
+    // for (Long songId : uploadSongToPlaylistDTO.getSongIds()) {
+    // Optional<Song> existedSong = songRepository.findById(songId);
+    // if (existedSong.isEmpty()) {
+    // throw new DataNotFoundException("Song with ID %s not
+    // found".formatted(songId));
+    // }
+    // Song song = existedSong.get();
+    // songs.add(song);
+    // }
+    // playlist.setSongs(songs);
+    // playlist.setStatus(Playlist.Status.PENDING);
+    // playlistRepository.save(playlist);
+    // return songs.stream().map(SongResponse::fromSong).toList();
+    // }
 
     @Override
     public Playlist UploadImagePlaylist(MultipartFile file, Long playlistId) throws Exception {

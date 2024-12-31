@@ -21,8 +21,9 @@ public interface IPlaylistService {
 
     Playlist Create(UploadPlaylistDTO createPlaylistDTO, String userId) throws Exception;
 
-    List<SongResponse> uploadSongToPlaylist(UploadSongToPlaylistDTO uploadSongToPlaylistDTO, Long playlistId)
-            throws Exception;
+    // List<SongResponse> uploadSongToPlaylist(UploadSongToPlaylistDTO
+    // uploadSongToPlaylistDTO, Long playlistId)
+    // throws Exception;
 
     Playlist UploadImagePlaylist(MultipartFile file, Long playlistId) throws Exception;
 
