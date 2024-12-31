@@ -43,7 +43,7 @@ public class PlaylistController {
         private final PlaylistRepository playlistRepository;
 
         @GetMapping("/{playlistId}")
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST') or hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> Detail(@PathVariable Long playlistId) throws Exception {
                 try {
                         Playlist playlist = playlistService.Detail(playlistId);
@@ -92,36 +92,40 @@ public class PlaylistController {
                 }
         }
 
-        @PatchMapping("/{playlistId}")
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
-        public ResponseEntity<ResponseObject> uploadSongToplaylist(
-                        @RequestBody UploadSongToPlaylistDTO addSongAlbumDTO,
-                        @PathVariable Long playlistId,
-                        @RequestHeader("Authorization") String authorizationHeader) throws Exception {
-                try {
-                        List<SongResponse> songResponseList = playlistService.uploadSongToPlaylist(addSongAlbumDTO,
-                                        playlistId);
-                        String token = authorizationHeader.substring(7);
-                        String userId = jwtTokenUtils.getUserId(token);
-                        Playlist playlist = playlistService.Detail(playlistId);
-                        // Long artistId = tokenUtils.getIdFromToken(authorizationHeader.substring(7));
-                        User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
+        // @PatchMapping("/{playlistId}")
+        // @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        // public ResponseEntity<ResponseObject> uploadSongToplaylist(
+        // @RequestBody UploadSongToPlaylistDTO addSongAlbumDTO,
+        // @PathVariable Long playlistId,
+        // @RequestHeader("Authorization") String authorizationHeader) throws Exception
+        // {
+        // try {
+        // List<SongResponse> songResponseList =
+        // playlistService.uploadSongToPlaylist(addSongAlbumDTO,
+        // playlistId);
+        // String token = authorizationHeader.substring(7);
+        // String userId = jwtTokenUtils.getUserId(token);
+        // Playlist playlist = playlistService.Detail(playlistId);
+        // // Long artistId =
+        // tokenUtils.getIdFromToken(authorizationHeader.substring(7));
+        // User user = userRepository.findById(Long.valueOf(userId)).orElse(null);
 
-                        return ResponseEntity.ok().body(
-                                        ResponseObject.builder()
-                                                        .message("add song to playlist successfully")
-                                                        .data(PlaylistDetailResponse.fromPlaylist(playlist,
-                                                                        songResponseList, user))
-                                                        .status(HttpStatus.OK)
-                                                        .build());
-                } catch (DataNotFoundException e) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
-                }
-        }
+        // return ResponseEntity.ok().body(
+        // ResponseObject.builder()
+        // .message("add song to playlist successfully")
+        // .data(PlaylistDetailResponse.fromPlaylist(playlist,
+        // songResponseList, user))
+        // .status(HttpStatus.OK)
+        // .build());
+        // } catch (DataNotFoundException e) {
+        // return
+        // ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+        // .message(e.getMessage())
+        // .status(HttpStatus.BAD_REQUEST)
+        // .data(null)
+        // .build());
+        // }
+        // }
 
         @PostMapping("/upload-playlist-image/{playlistId}")
         @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
@@ -260,7 +264,7 @@ public class PlaylistController {
 
         // For user get all playlist
         @GetMapping("")
-        //@PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        // @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> UserGetPlaylist(
                         @RequestParam(defaultValue = "", required = false) String keyword) {
                 Page<Playlist> playlists = playlistRepository.findAll(keyword, null);

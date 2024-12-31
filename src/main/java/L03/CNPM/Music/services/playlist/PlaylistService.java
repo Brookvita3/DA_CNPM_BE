@@ -134,10 +134,12 @@ public class PlaylistService implements IPlaylistService {
     public Playlist updatePlaylist(UpdatePlaylistDTO updatePlaylistDTO, Long playlistId) throws DataNotFoundException {
         Optional<Playlist> exitedPlaylist = playlistRepository.findById(playlistId);
         if (exitedPlaylist.isEmpty())
-            throw new DataNotFoundException("Album with ID %s no found".formatted(playlistId));
+            throw new DataNotFoundException("Playlist with ID %s no found".formatted(playlistId));
         Playlist playlist = exitedPlaylist.get();
-        if (playlist.getStatus() != Playlist.Status.APPROVED)
-            throw new DataNotFoundException("Album with ID %s is not approved yet".formatted(playlistId));
+        playlist.setStatus(Playlist.Status.PENDING);
+        // if (playlist.getStatus() != Playlist.Status.DRAFT)
+        // throw new DataNotFoundException("Playlist with ID %s is not approved
+        // yet".formatted(playlistId));
 
         if (updatePlaylistDTO.getName() != null)
             playlist.setName(updatePlaylistDTO.getName());
