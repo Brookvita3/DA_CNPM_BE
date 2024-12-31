@@ -142,8 +142,8 @@ public class UserController {
                         }
                 }
 
-                if (createUserDTO.getUsername() == null || createUserDTO.getUsername().trim().isBlank()
-                                || createUserDTO.getUsername().trim().contains(" ")) {
+                if (createUserDTO.getUsername() == null || createUserDTO.getUsername().trim().isBlank()) {
+                        // || createUserDTO.getUsername().trim().contains(" ")) {
                         return ResponseEntity.badRequest().body(ResponseObject.builder()
                                         .status(HttpStatus.BAD_REQUEST)
                                         .data(null)
