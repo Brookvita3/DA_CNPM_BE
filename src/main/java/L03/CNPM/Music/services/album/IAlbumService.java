@@ -17,8 +17,7 @@ public interface IAlbumService {
 
     Album Detail(Long albumId) throws Exception;
 
-    // List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO
-    // uploadSongToAlbumDTO, Long albumId) throws Exception;
+    List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId) throws Exception;
 
     Page<Album> findAll(String keyword, Pageable pageable);
 
