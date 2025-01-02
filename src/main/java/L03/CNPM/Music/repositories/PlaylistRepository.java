@@ -6,6 +6,7 @@ import L03.CNPM.Music.models.Song;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +25,7 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
     @Query("SELECT p FROM Playlist p WHERE (:keyword IS NULL OR p.name LIKE %:keyword%) AND p.status != 'DRAFT'")
     List<Playlist> AdminfindAll(@Param("keyword") String keyword);
 
+    @EntityGraph(attributePaths = { "playlist", "user" })
     @Query("SELECT p FROM Playlist p WHERE (:keyword IS NULL OR p.name LIKE %:keyword%) AND p.isPublic = true AND p.status = 'APPROVED'")
     Page<Playlist> findAll(@Param("keyword") String keyword, Pageable pageable);
 

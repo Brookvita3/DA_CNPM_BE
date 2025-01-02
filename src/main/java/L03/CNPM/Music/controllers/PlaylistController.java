@@ -253,7 +253,7 @@ public class PlaylistController {
                         @RequestParam(defaultValue = "", required = false) String keyword) {
                 List<Playlist> playlistList = playlistRepository.AdminfindAll(keyword);
                 List<PlaylistResponse> playlistResponseList = playlistList.stream().map(playlist -> {
-                        return PlaylistResponse.fromPlaylist(playlist, null);
+                        return PlaylistResponse.fromPlaylist(playlist, playlist.getUser());
                 }).toList();
                 return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                 .message("Get all playlist by admin successfully")
