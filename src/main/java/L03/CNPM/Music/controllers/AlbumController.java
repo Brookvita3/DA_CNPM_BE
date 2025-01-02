@@ -132,33 +132,35 @@ public class AlbumController {
         // HEADERS: AUTHENTICATION: YES (ONLY ARTIST CAN ACCESS)
         // PARAMS:
         // id: String
-        @PatchMapping("/{albumId}/songs")
-        @PreAuthorize("hasRole('ROLE_ARTIST')")
-        public ResponseEntity<ResponseObject> uploadSongToAlbum(
-                        @RequestBody UploadSongToAlbumDTO addSongAlbumDTO,
-                        @PathVariable Long albumId,
-                        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-                try {
-                        List<SongResponse> songResponseList = albumService.uploadSongToAlbum(addSongAlbumDTO, albumId);
-                        Album album = albumService.Detail(albumId);
-                        Long artistId = tokenUtils.getIdFromToken(authorizationHeader.substring(7));
-                        User artist = userRepository.findById(artistId).orElse(null);
+        // @PatchMapping("/{albumId}/songs")
+        // @PreAuthorize("hasRole('ROLE_ARTIST')")
+        // public ResponseEntity<ResponseObject> uploadSongToAlbum(
+        // @RequestBody UploadSongToAlbumDTO addSongAlbumDTO,
+        // @PathVariable Long albumId,
+        // @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+        // try {
+        // List<SongResponse> songResponseList =
+        // albumService.uploadSongToAlbum(addSongAlbumDTO, albumId);
+        // Album album = albumService.Detail(albumId);
+        // Long artistId = tokenUtils.getIdFromToken(authorizationHeader.substring(7));
+        // User artist = userRepository.findById(artistId).orElse(null);
 
-                        return ResponseEntity.ok().body(
-                                        ResponseObject.builder()
-                                                        .message("add song to album successfully")
-                                                        .status(HttpStatus.OK)
-                                                        .data(AlbumDetailResponse.fromAlbum(album, songResponseList,
-                                                                        artist))
-                                                        .build());
-                } catch (DataNotFoundException e) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
-                                        .message(e.getMessage())
-                                        .status(HttpStatus.BAD_REQUEST)
-                                        .data(null)
-                                        .build());
-                }
-        }
+        // return ResponseEntity.ok().body(
+        // ResponseObject.builder()
+        // .message("add song to album successfully")
+        // .status(HttpStatus.OK)
+        // .data(AlbumDetailResponse.fromAlbum(album, songResponseList,
+        // artist))
+        // .build());
+        // } catch (DataNotFoundException e) {
+        // return
+        // ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+        // .message(e.getMessage())
+        // .status(HttpStatus.BAD_REQUEST)
+        // .data(null)
+        // .build());
+        // }
+        // }
 
         // ENDPOINT: {{API_PREFIX}}/albums/{id}/update [PATCH]
         // MODIFY ALBUM, USE AFTER ALBUM IS APPROVED

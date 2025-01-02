@@ -64,29 +64,32 @@ public class AlbumService implements IAlbumService {
         return album;
     }
 
-    @Override
-    public List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId)
-            throws DataNotFoundException {
+    // @Override
+    // public List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO
+    // uploadSongToAlbumDTO, Long albumId)
+    // throws DataNotFoundException {
 
-        Album album = albumRepository.findById(albumId)
-                .orElseThrow(() -> new DataNotFoundException("Album with ID %s no found".formatted(albumId)));
-        album.setStatus(Album.Status.PENDING);
-        albumRepository.save(album);
+    // Album album = albumRepository.findById(albumId)
+    // .orElseThrow(() -> new DataNotFoundException("Album with ID %s no
+    // found".formatted(albumId)));
+    // album.setStatus(Album.Status.PENDING);
+    // albumRepository.save(album);
 
-        List<Song> songs = new ArrayList<>();
-        for (Long songId : uploadSongToAlbumDTO.getSongIds()) {
-            Optional<Song> existedSong = songRepository.findById(songId);
-            if (existedSong.isEmpty()) {
-                throw new DataNotFoundException("Song with ID %s not found".formatted(songId));
-            }
-            Song song = existedSong.get();
-            songs.add(song);
-            song.setAlbumId(albumId);
-            songRepository.save(song);
-        }
+    // List<Song> songs = new ArrayList<>();
+    // for (Long songId : uploadSongToAlbumDTO.getSongIds()) {
+    // Optional<Song> existedSong = songRepository.findById(songId);
+    // if (existedSong.isEmpty()) {
+    // throw new DataNotFoundException("Song with ID %s not
+    // found".formatted(songId));
+    // }
+    // Song song = existedSong.get();
+    // songs.add(song);
+    // song.setAlbumId(albumId);
+    // songRepository.save(song);
+    // }
 
-        return songs.stream().map(SongResponse::fromSong).toList();
-    }
+    // return songs.stream().map(SongResponse::fromSong).toList();
+    // }
 
     @Override
     public Page<Album> findAll(String keyword, Pageable pageable) {
@@ -105,8 +108,9 @@ public class AlbumService implements IAlbumService {
         if (exitedAlbum.isEmpty())
             throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
         Album album = exitedAlbum.get();
-        if (album.getStatus() != Album.Status.APPROVED)
-            throw new DataNotFoundException("Album with ID %s is not approved yet".formatted(albumId));
+        // if (album.getStatus() != Album.Status.APPROVED)
+        // throw new DataNotFoundException("Album with ID %s is not approved
+        // yet".formatted(albumId));
 
         if (updateAlbumDTO.getName() != null)
             album.setName(updateAlbumDTO.getName());
@@ -141,6 +145,7 @@ public class AlbumService implements IAlbumService {
                 songRepository.save(song);
             }
         }
+        album.setStatus(Album.Status.PENDING);
         return albumRepository.save(album);
 
     }

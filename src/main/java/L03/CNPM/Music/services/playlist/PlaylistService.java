@@ -139,7 +139,6 @@ public class PlaylistService implements IPlaylistService {
         if (exitedPlaylist.isEmpty())
             throw new DataNotFoundException("Playlist with ID %s no found".formatted(playlistId));
         Playlist playlist = exitedPlaylist.get();
-        playlist.setStatus(Playlist.Status.PENDING);
         // if (playlist.getStatus() != Playlist.Status.DRAFT)
         // throw new DataNotFoundException("Playlist with ID %s is not approved
         // yet".formatted(playlistId));
@@ -183,6 +182,8 @@ public class PlaylistService implements IPlaylistService {
                 throw new DataNotFoundException("song with ID %s is not in playlist yet".formatted(entry.getKey()));
             songPlaylistRepository.deleteSongPlaylistBySongIdAndPlaylistId(entry.getKey(), playlistId);
         }
+
+        playlist.setStatus(Playlist.Status.PENDING);
 
         return playlistRepository.save(playlist);
 

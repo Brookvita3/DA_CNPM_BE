@@ -13,11 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface IAlbumService {
-    Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws  Exception;
+    Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws Exception;
 
     Album Detail(Long albumId) throws Exception;
 
-    List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId) throws Exception;
+    // List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO
+    // uploadSongToAlbumDTO, Long albumId) throws Exception;
 
     Page<Album> findAll(String keyword, Pageable pageable);
 
